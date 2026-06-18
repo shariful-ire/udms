@@ -1,0 +1,238 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================================================
+   UDMS — Global Design Tokens & CSS Custom Properties
+   ================================================================ */
+
+@layer base {
+  :root {
+    /* ── Brand colors ──────────────────────────────────────────── */
+    --brand-primary:   221 83% 53%;
+    --brand-secondary: 262 83% 58%;
+    --brand-accent:    153 60% 50%;
+
+    /* ── Neutral scale ─────────────────────────────────────────── */
+    --gray-950: 220 20% 5%;
+    --gray-900: 220 17% 10%;
+    --gray-800: 220 15% 16%;
+    --gray-700: 220 13% 22%;
+    --gray-600: 220 11% 34%;
+    --gray-500: 220  9% 46%;
+    --gray-400: 220  9% 62%;
+    --gray-300: 220  9% 78%;
+    --gray-200: 220  9% 90%;
+    --gray-100: 220  9% 95%;
+    --gray-50:  220  9% 98%;
+
+    /* ── Semantic (light mode) ─────────────────────────────────── */
+    --background:       0 0% 100%;
+    --foreground:       220 20% 7%;
+    --card:             0 0% 100%;
+    --card-foreground:  220 20% 7%;
+    --popover:          0 0% 100%;
+    --popover-foreground: 220 20% 7%;
+    --primary:          221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary:        220 9% 96%;
+    --secondary-foreground: 220 15% 16%;
+    --muted:            220 9% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent:           220 9% 96%;
+    --accent-foreground: 220 15% 16%;
+    --destructive:      0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border:           220 9% 90%;
+    --input:            220 9% 90%;
+    --ring:             221 83% 53%;
+
+    /* ── Sidebar ───────────────────────────────────────────────── */
+    --sidebar-bg:       0 0% 100%;
+    --sidebar-border:   220 9% 92%;
+    --sidebar-width:    240px;
+    --sidebar-collapsed: 64px;
+    --topbar-height:    64px;
+
+    /* ── Status ─────────────────────────────────────────────────── */
+    --color-success: 153 60% 45%;
+    --color-warning: 38 95% 50%;
+    --color-danger:  0 72% 51%;
+    --color-info:    221 83% 53%;
+
+    /* ── Radius ─────────────────────────────────────────────────── */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* ── Semantic (dark mode) ──────────────────────────────────── */
+    --background:       220 17% 8%;
+    --foreground:       220 9% 95%;
+    --card:             220 15% 11%;
+    --card-foreground:  220 9% 95%;
+    --popover:          220 15% 11%;
+    --popover-foreground: 220 9% 95%;
+    --primary:          221 83% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary:        220 13% 16%;
+    --secondary-foreground: 220 9% 85%;
+    --muted:            220 13% 16%;
+    --muted-foreground: 220 9% 60%;
+    --accent:           220 13% 18%;
+    --accent-foreground: 220 9% 85%;
+    --destructive:      0 72% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --border:           220 13% 20%;
+    --input:            220 13% 20%;
+    --ring:             221 83% 58%;
+
+    --sidebar-bg:       220 15% 10%;
+    --sidebar-border:   220 13% 16%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Focus styles */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/30;
+  }
+
+  /* Transitions */
+  * {
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+}
+
+/* ── Utility classes ──────────────────────────────────────────────── */
+
+@layer utilities {
+  /* Shimmer skeleton effect */
+  .skeleton {
+    @apply bg-muted overflow-hidden relative;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+  }
+
+  /* Glass morphism */
+  .glass {
+    background: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--brand-secondary)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Page transition container */
+  .page-enter {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  /* Card hover effect */
+  .card-hover {
+    @apply transition-all duration-200 cursor-pointer;
+    &:hover {
+      transform: translateY(-1px);
+      @apply shadow-card-hover;
+    }
+  }
+
+  /* Status dot */
+  .status-dot {
+    @apply inline-block w-2 h-2 rounded-full;
+  }
+  .status-dot-active    { @apply bg-success; }
+  .status-dot-inactive  { @apply bg-muted-foreground; }
+  .status-dot-suspended { @apply bg-danger; }
+  .status-dot-pending   { @apply bg-warning; }
+
+  /* Truncate with tooltip support */
+  .truncate-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .truncate-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+}
+
+/* ── Component overrides ──────────────────────────────────────────── */
+
+@layer components {
+  /* Table */
+  .data-table {
+    @apply w-full text-sm;
+  }
+  .data-table thead tr {
+    @apply border-b bg-muted/40;
+  }
+  .data-table thead th {
+    @apply h-10 px-4 text-left align-middle font-medium text-muted-foreground;
+  }
+  .data-table tbody tr {
+    @apply border-b transition-colors hover:bg-muted/30;
+  }
+  .data-table tbody td {
+    @apply px-4 py-3 align-middle;
+  }
+  .data-table tbody tr:last-child {
+    @apply border-none;
+  }
+
+  /* Sidebar nav item */
+  .nav-item {
+    @apply flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors;
+    @apply hover:bg-accent hover:text-accent-foreground;
+  }
+  .nav-item.active {
+    @apply bg-primary/10 text-primary;
+  }
+}

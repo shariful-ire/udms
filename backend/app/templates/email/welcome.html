@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to UDMS — {{ full_name }}{% endblock %}
+
+{% block content %}
+<h1>Welcome to UDMS, {{ full_name }}!</h1>
+<p>Your email has been verified and your account is now <strong>active</strong>. You're all set to use the University Dining Management System.</p>
+
+<p><strong>Your account details:</strong></p>
+<ul class="info-list">
+  <li><strong>Name:</strong> {{ full_name }}</li>
+  <li><strong>Account Status:</strong> Active</li>
+</ul>
+
+<p style="margin-top: 24px;">Here's what you can do right now:</p>
+<ul class="info-list">
+  <li>Browse today's dining menu and meal schedules</li>
+  <li>Contact the Dining Manager to enroll as a dining customer</li>
+  <li>Submit temporary meal requests for one-off dining access</li>
+  <li>Update your profile and preferences</li>
+</ul>
+
+<p style="text-align: center; margin-top: 32px;">
+  <a href="{{ login_url }}" class="btn">Go to Dashboard →</a>
+</p>
+
+<hr class="divider" />
+
+<p style="font-size: 13px; color: #94a3b8;">
+  If you have any questions or need help, please contact the Dining Office or reach out to our support team.
+</p>
+{% endblock %}

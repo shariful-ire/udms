@@ -1,0 +1,223 @@
+version: "3.9"
+
+# =====================================================================
+# UDMS — Docker Compose Development
+# Starts: MySQL, Redis, FastAPI (hot-reload), Celery Worker, Flower
+# =====================================================================
+
+services:
+  # ─── MySQL Database ──────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: udms_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: udms_db
+      MYSQL_USER: udms_user
+      MYSQL_PASSWORD: udms_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - udms_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - udms_network
+
+  # ─── Redis ───────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: udms_redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - udms_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - udms_network
+
+  # ─── FastAPI Backend ─────────────────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: builder  # Use builder stage for dev (has all tools)
+    container_name: udms_api
+    restart: unless-stopped
+    working_dir: /app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=udms_user
+      - DB_PASSWORD=udms_password
+      - DB_NAME=udms_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - JWT_SECRET_KEY=dev-secret-key-change-in-production-32chars
+      - JWT_ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=15
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+      - MAIL_FROM=shariful.ire.dev@gmail.com
+      - MAIL_FROM_NAME=UDMS University Dining
+      - MAIL_SERVER=smtp.gmail.com
+      - MAIL_PORT=587
+      - MAIL_USERNAME=shariful.ire.dev@gmail.com
+      - MAIL_PASSWORD=hwmw lkjw adxo xxqk
+      - MAIL_STARTTLS=true
+      - MAIL_SSL_TLS=false
+      - CORS_ORIGINS=["http://localhost:3000","http://127.0.0.1:3000"]
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - udms_uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - udms_network
+
+  # ─── Celery Worker ───────────────────────────────────────────────
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: builder
+    container_name: udms_worker
+    restart: unless-stopped
+    working_dir: /app
+    command: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=4
+    environment:
+      - ENVIRONMENT=development
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=udms_user
+      - DB_PASSWORD=udms_password
+      - DB_NAME=udms_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - MAIL_FROM=shariful.ire.dev@gmail.com
+      - MAIL_SERVER=smtp.gmail.com
+      - MAIL_PORT=587
+      - MAIL_USERNAME=shariful.ire.dev@gmail.com
+      - MAIL_PASSWORD=hwmw lkjw adxo xxqk
+      - MAIL_STARTTLS=true
+      - MAIL_SSL_TLS=false
+    volumes:
+      - ./backend:/app
+      - udms_uploads:/app/uploads
+    depends_on:
+      - api
+      - redis
+    networks:
+      - udms_network
+
+  # ─── Celery Beat (scheduler) ─────────────────────────────────────
+  beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: builder
+    container_name: udms_beat
+    restart: unless-stopped
+    working_dir: /app
+    command: celery -A app.tasks.celery_app beat --loglevel=info
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=udms_user
+      - DB_PASSWORD=udms_password
+      - DB_NAME=udms_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+    networks:
+      - udms_network
+
+  # ─── Flower (Celery monitor) ─────────────────────────────────────
+  flower:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: builder
+    container_name: udms_flower
+    restart: unless-stopped
+    working_dir: /app
+    command: celery -A app.tasks.celery_app flower --port=5555
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/1
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+    networks:
+      - udms_network
+
+  # ─── MailHog (dev email catcher) ─────────────────────────────────
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: udms_mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - udms_network
+
+  # ─── Next.js Frontend ────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: udms_frontend
+    restart: unless-stopped
+    command: npm run dev
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_APP_NAME=UDMS
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - api
+    networks:
+      - udms_network
+
+volumes:
+  udms_mysql_data:
+  udms_redis_data:
+  udms_uploads:
+
+networks:
+  udms_network:
+    driver: bridge

@@ -1,0 +1,188 @@
+version: "3.9"
+
+# =====================================================================
+# UDMS — Docker Compose Production
+# Nginx reverse proxy + hardened settings + no dev tools
+# =====================================================================
+
+services:
+  # ─── MySQL Database ──────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: udms_db_prod
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - udms_mysql_prod:/var/lib/mysql
+      - ./infra/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USER}", "-p${DB_PASSWORD}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - udms_internal
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  # ─── Redis ───────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: udms_redis_prod
+    restart: always
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - udms_redis_prod:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - udms_internal
+
+  # ─── FastAPI Backend ─────────────────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: udms_api_prod
+    restart: always
+    env_file:
+      - ./backend/.env.production
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+    volumes:
+      - udms_uploads_prod:/app/uploads
+      - udms_logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - udms_internal
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+
+  # ─── Celery Worker ───────────────────────────────────────────────
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: udms_worker_prod
+    restart: always
+    command: celery -A app.tasks.celery_app worker --loglevel=warning --concurrency=4 --without-heartbeat
+    env_file:
+      - ./backend/.env.production
+    environment:
+      - ENVIRONMENT=production
+    volumes:
+      - udms_uploads_prod:/app/uploads
+      - udms_logs:/app/logs
+    depends_on:
+      - api
+      - redis
+    networks:
+      - udms_internal
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ─── Celery Beat ─────────────────────────────────────────────────
+  beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: udms_beat_prod
+    restart: always
+    command: celery -A app.tasks.celery_app beat --loglevel=warning
+    env_file:
+      - ./backend/.env.production
+    networks:
+      - udms_internal
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # ─── Next.js Frontend ────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: runner
+    container_name: udms_frontend_prod
+    restart: always
+    env_file:
+      - ./frontend/.env.production
+    networks:
+      - udms_internal
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ─── Nginx Reverse Proxy ─────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: udms_nginx_prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infra/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./infra/certbot/conf:/etc/letsencrypt:ro
+      - ./infra/certbot/www:/var/www/certbot:ro
+      - udms_uploads_prod:/var/www/uploads:ro
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - udms_internal
+      - udms_external
+
+  # ─── Certbot (SSL) ───────────────────────────────────────────────
+  certbot:
+    image: certbot/certbot:latest
+    container_name: udms_certbot
+    volumes:
+      - ./infra/certbot/conf:/etc/letsencrypt
+      - ./infra/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done'"
+    networks:
+      - udms_internal
+
+volumes:
+  udms_mysql_prod:
+  udms_redis_prod:
+  udms_uploads_prod:
+  udms_logs:
+
+networks:
+  udms_internal:
+    driver: bridge
+    internal: true
+  udms_external:
+    driver: bridge

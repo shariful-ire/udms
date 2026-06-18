@@ -1,0 +1,1388 @@
+io HTML file
+Create the portfolio HTML file
+
+Create the portfolio HTML file
+bash
+
+cat > /mnt/user-data/outputs/ashraful_portfolio.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ashraful Alom | IoT & Robotics Engineer | Data Analyst</title>
+<meta name="description" content="Portfolio of Ashraful Alom — B.Sc. IoT & Robotics Engineering student from Bangladesh specializing in Data Analytics, AI, and Medical Robotics Research.">
+<meta name="keywords" content="Ashraful Alom, IoT, Robotics, Data Analytics, Python, SQL, Power BI, AI, Machine Learning, Bangladesh, Engineering, Research, Internship, Scholarship">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0a0f1e;
+  --navy-2: #111827;
+  --navy-3: #1a2236;
+  --teal: #00d4aa;
+  --teal-dim: #00b894;
+  --teal-glow: rgba(0,212,170,0.12);
+  --amber: #f59e0b;
+  --slate: #94a3b8;
+  --slate-light: #cbd5e1;
+  --white: #f8fafc;
+  --card: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.08);
+  --card-hover: rgba(0,212,170,0.06);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --radius: 12px;
+  --radius-lg: 20px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: var(--teal-dim); border-radius: 4px; }
+
+/* ── GRID BACKGROUND ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(10,15,30,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--card-border);
+  padding: 0 5vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--teal);
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--slate);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--teal); }
+.nav-cta {
+  background: var(--teal);
+  color: var(--navy) !important;
+  padding: 8px 20px;
+  border-radius: 40px;
+  font-weight: 600 !important;
+  font-size: 0.82rem !important;
+  transition: opacity 0.2s !important;
+}
+.nav-cta:hover { opacity: 0.85; color: var(--navy) !important; }
+
+/* ── SECTIONS ── */
+section { position: relative; z-index: 1; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 5vw; }
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--teal);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+.section-sub {
+  color: var(--slate);
+  font-size: 1.05rem;
+  max-width: 600px;
+  margin-bottom: 3rem;
+}
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 120px 5vw 80px;
+}
+.hero-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--teal-glow);
+  border: 1px solid rgba(0,212,170,0.25);
+  border-radius: 40px;
+  padding: 6px 16px;
+  margin-bottom: 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--teal);
+  letter-spacing: 0.08em;
+}
+.hero-badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.4); }
+}
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -2px;
+  margin-bottom: 0.5rem;
+}
+.hero-name span { color: var(--teal); }
+.hero-role {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  font-weight: 400;
+  color: var(--slate-light);
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.3px;
+}
+.hero-desc {
+  font-size: 1.05rem;
+  color: var(--slate);
+  max-width: 600px;
+  margin-bottom: 2.5rem;
+  line-height: 1.8;
+}
+.hero-btns {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 3.5rem;
+}
+.btn-primary {
+  background: var(--teal);
+  color: var(--navy);
+  padding: 14px 32px;
+  border-radius: 40px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s, transform 0.2s;
+  display: inline-block;
+}
+.btn-primary:hover { opacity: 0.88; transform: translateY(-2px); }
+.btn-ghost {
+  background: transparent;
+  color: var(--white);
+  padding: 14px 32px;
+  border-radius: 40px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: 1px solid var(--card-border);
+  transition: border-color 0.2s, color 0.2s, transform 0.2s;
+  display: inline-block;
+}
+.btn-ghost:hover { border-color: var(--teal); color: var(--teal); transform: translateY(-2px); }
+.hero-stats {
+  display: flex;
+  gap: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--card-border);
+}
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--teal);
+}
+.stat-label {
+  font-size: 0.82rem;
+  color: var(--slate);
+  margin-top: 2px;
+}
+
+/* ── ABOUT ── */
+#about { padding: 120px 0; }
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: start;
+}
+.about-text p {
+  color: var(--slate-light);
+  margin-bottom: 1.2rem;
+  font-size: 1.0rem;
+  line-height: 1.85;
+}
+.about-text p strong { color: var(--white); font-weight: 500; }
+.resume-box {
+  background: var(--teal-glow);
+  border: 1px solid rgba(0,212,170,0.2);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+.resume-box p {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--teal);
+  margin-bottom: 0.5rem !important;
+}
+.resume-box blockquote {
+  font-size: 0.92rem;
+  color: var(--slate-light);
+  font-style: italic;
+  line-height: 1.75;
+  border: none;
+  padding: 0;
+}
+.about-cards { display: flex; flex-direction: column; gap: 1rem; }
+.about-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  transition: border-color 0.2s, background 0.2s;
+}
+.about-card:hover { border-color: rgba(0,212,170,0.3); background: var(--card-hover); }
+.about-card-icon { font-size: 1.4rem; margin-bottom: 0.5rem; }
+.about-card h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--white);
+  margin-bottom: 0.25rem;
+}
+.about-card p { font-size: 0.88rem; color: var(--slate); margin: 0; }
+
+/* ── SKILLS ── */
+#skills { padding: 120px 0; background: rgba(255,255,255,0.015); }
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+.skill-group {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  transition: border-color 0.2s;
+}
+.skill-group:hover { border-color: rgba(0,212,170,0.25); }
+.skill-group-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--teal);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.skill-group h3 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 1.25rem;
+}
+.skill-tag {
+  display: inline-block;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.82rem;
+  color: var(--slate-light);
+  margin: 3px;
+  font-family: var(--font-mono);
+  transition: all 0.15s;
+}
+.skill-tag:hover { background: var(--teal-glow); border-color: rgba(0,212,170,0.4); color: var(--teal); }
+.skill-tag.hot { background: var(--teal-glow); border-color: rgba(0,212,170,0.35); color: var(--teal); }
+
+/* ── PROJECTS ── */
+#projects { padding: 120px 0; }
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+.project-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.25s, transform 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--teal), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.project-card:hover { border-color: rgba(0,212,170,0.25); transform: translateY(-4px); }
+.project-card:hover::before { opacity: 1; }
+.project-num {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--teal);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+  opacity: 0.7;
+}
+.project-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+.project-card p {
+  font-size: 0.9rem;
+  color: var(--slate);
+  line-height: 1.7;
+  flex: 1;
+  margin-bottom: 1.25rem;
+}
+.project-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.25rem; }
+.project-tag {
+  background: rgba(0,212,170,0.08);
+  border: 1px solid rgba(0,212,170,0.2);
+  border-radius: 4px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  color: var(--teal);
+  font-family: var(--font-mono);
+}
+.project-impact {
+  font-size: 0.82rem;
+  color: var(--amber);
+  font-family: var(--font-mono);
+  padding-top: 1rem;
+  border-top: 1px solid var(--card-border);
+}
+.project-impact::before { content: '★ '; }
+.project-card.featured {
+  grid-column: span 2;
+  background: linear-gradient(135deg, rgba(0,212,170,0.06), rgba(0,212,170,0.02));
+  border-color: rgba(0,212,170,0.2);
+}
+
+/* ── RESEARCH ── */
+#research { padding: 120px 0; background: rgba(255,255,255,0.015); }
+.research-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.research-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  transition: border-color 0.2s;
+}
+.research-card:hover { border-color: rgba(0,212,170,0.25); }
+.research-icon { font-size: 2rem; margin-bottom: 1rem; }
+.research-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.75rem;
+}
+.research-card p { font-size: 0.9rem; color: var(--slate); line-height: 1.75; }
+.research-keywords { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; }
+.research-kw {
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  color: var(--slate);
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+/* ── EDUCATION ── */
+#education { padding: 120px 0; }
+.edu-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  display: flex;
+  gap: 2rem;
+  align-items: start;
+  max-width: 780px;
+  transition: border-color 0.2s;
+}
+.edu-card:hover { border-color: rgba(0,212,170,0.25); }
+.edu-icon {
+  width: 56px; height: 56px;
+  background: var(--teal-glow);
+  border: 1px solid rgba(0,212,170,0.3);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+.edu-body { flex: 1; }
+.edu-body h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.25rem;
+}
+.edu-body .university { color: var(--teal); font-size: 0.95rem; font-weight: 500; margin-bottom: 0.25rem; }
+.edu-body .period {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--slate);
+  margin-bottom: 1rem;
+}
+.edu-body p { font-size: 0.9rem; color: var(--slate-light); line-height: 1.75; }
+.edu-highlights { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1rem; }
+.edu-hl {
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  color: var(--amber);
+  font-family: var(--font-mono);
+}
+
+/* ── EXPERIENCE ── */
+#experience { padding: 120px 0; background: rgba(255,255,255,0.015); }
+.timeline { position: relative; padding-left: 2rem; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--teal), transparent);
+}
+.timeline-item { position: relative; padding-bottom: 3rem; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot {
+  position: absolute;
+  left: -2.375rem;
+  top: 6px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--teal);
+  border: 2px solid var(--navy);
+}
+.timeline-meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--teal);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+.timeline-item h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.25rem;
+}
+.timeline-item .org { color: var(--slate-light); font-size: 0.9rem; margin-bottom: 0.75rem; }
+.timeline-item ul { padding-left: 1.25rem; }
+.timeline-item ul li {
+  font-size: 0.9rem;
+  color: var(--slate);
+  margin-bottom: 0.4rem;
+  line-height: 1.7;
+}
+.timeline-item ul li::marker { color: var(--teal); }
+
+/* ── CERTIFICATIONS ── */
+#certifications { padding: 120px 0; }
+.certs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+.cert-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.cert-card:hover { border-color: rgba(0,212,170,0.3); transform: translateX(4px); }
+.cert-logo {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: var(--teal-glow);
+  border: 1px solid rgba(0,212,170,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.cert-info h4 { font-weight: 600; font-size: 0.9rem; color: var(--white); margin-bottom: 0.2rem; }
+.cert-info p { font-size: 0.78rem; color: var(--slate); font-family: var(--font-mono); }
+.cert-badge {
+  margin-left: auto;
+  background: rgba(0,212,170,0.1);
+  border: 1px solid rgba(0,212,170,0.2);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  color: var(--teal);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── ACHIEVEMENTS ── */
+#achievements { padding: 120px 0; background: rgba(255,255,255,0.015); }
+.achievements-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; }
+.ach-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.ach-card:hover { border-color: rgba(245,158,11,0.35); transform: translateY(-4px); }
+.ach-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.ach-card h4 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.4rem; }
+.ach-card p { font-size: 0.83rem; color: var(--slate); }
+
+/* ── GITHUB / LINKEDIN ── */
+#branding { padding: 120px 0; }
+.branding-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.branding-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+}
+.branding-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.branding-card ol { padding-left: 1.25rem; counter-reset: step; list-style: none; }
+.branding-card ol li {
+  counter-increment: step;
+  font-size: 0.9rem;
+  color: var(--slate-light);
+  margin-bottom: 0.75rem;
+  padding-left: 0.5rem;
+  position: relative;
+}
+.branding-card ol li::before {
+  content: counter(step, decimal-leading-zero);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--teal);
+  position: absolute;
+  left: -1.75rem;
+  top: 3px;
+}
+
+/* ── CONTACT ── */
+#contact { padding: 120px 0 80px; }
+.contact-inner {
+  background: linear-gradient(135deg, rgba(0,212,170,0.08), rgba(0,212,170,0.02));
+  border: 1px solid rgba(0,212,170,0.2);
+  border-radius: var(--radius-lg);
+  padding: 4rem;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.contact-inner .section-title { margin-bottom: 1rem; }
+.contact-inner p { color: var(--slate); max-width: 480px; margin: 0 auto 2.5rem; }
+.contact-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.contact-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 40px;
+  padding: 10px 22px;
+  color: var(--slate-light);
+  text-decoration: none;
+  font-size: 0.88rem;
+  transition: all 0.2s;
+}
+.contact-link:hover { border-color: var(--teal); color: var(--teal); }
+.contact-availability {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--teal);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.avail-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); animation: pulse 2s infinite; }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--card-border);
+  padding: 2rem 5vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--slate);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── ANIMATIONS ── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: 0 5vw; }
+  .nav-links { display: none; }
+  .about-grid, .research-grid, .branding-grid { grid-template-columns: 1fr; }
+  .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+  .project-card.featured { grid-column: span 1; }
+  .edu-card { flex-direction: column; gap: 1rem; }
+  .contact-inner { padding: 2.5rem 1.5rem; }
+  footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">AA</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#research">Research</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Open to Internships · Research · Scholarships
+    </div>
+    <h1 class="hero-name">Ashraful<br><span>Alom</span></h1>
+    <p class="hero-role">IoT & Robotics Engineer · Data Analyst · AI Enthusiast</p>
+    <p class="hero-desc">
+      B.Sc. candidate in Internet of Things &amp; Robotics Engineering from Bangladesh, building at the intersection of data intelligence, autonomous systems, and medical robotics. Passionate about research that drives real-world impact.
+    </p>
+    <div class="hero-btns">
+      <a href="#projects" class="btn-primary">View My Work</a>
+      <a href="#contact" class="btn-ghost">Get in Touch</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">10+</div>
+        <div class="stat-label">Projects Built</div>
+      </div>
+      <div>
+        <div class="stat-num">5+</div>
+        <div class="stat-label">Certifications</div>
+      </div>
+      <div>
+        <div class="stat-num">3</div>
+        <div class="stat-label">Research Domains</div>
+      </div>
+      <div>
+        <div class="stat-num">🇧🇩</div>
+        <div class="stat-label">Bangladesh</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <p class="section-label">01 · About</p>
+    <div class="about-grid">
+      <div class="about-text fade-in">
+        <h2 class="section-title">Engineering the Future,<br>One Dataset at a Time</h2>
+        <p>I am a driven engineering student pursuing a <strong>Bachelor of Science in Internet of Things and Robotics Engineering</strong>, with a clear vision: to leverage data, connected systems, and intelligent machines to solve humanity's most pressing challenges.</p>
+        <p>My academic journey spans the full stack of modern engineering — from writing <strong>Python pipelines for data analytics</strong> and building <strong>SQL-driven dashboards in Power BI</strong>, to prototyping IoT sensor networks and exploring autonomous robotic systems.</p>
+        <p>I am actively seeking <strong>international internships, research collaborations, and scholarship opportunities</strong> that allow me to contribute to cutting-edge work in AI-driven diagnostics, medical robotics, and intelligent automation.</p>
+        <div class="resume-box">
+          <p>// RESUME SUMMARY</p>
+          <blockquote>
+            "Motivated IoT & Robotics Engineering student with hands-on expertise in Python, SQL, Power BI, and embedded systems. Demonstrated ability to design data-driven solutions and prototype autonomous systems. Seeking research and internship roles in Data Analytics, AI, and Medical Robotics to contribute to high-impact engineering projects on a global stage."
+          </blockquote>
+        </div>
+      </div>
+      <div class="about-cards fade-in">
+        <div class="about-card">
+          <div class="about-card-icon">🎯</div>
+          <h4>Mission-Driven Engineer</h4>
+          <p>Driven by the belief that engineering must serve humanity — my focus on medical robotics reflects a commitment to technology that heals and empowers.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">📊</div>
+          <h4>Data-First Thinker</h4>
+          <p>I approach every problem through data — collecting it, cleaning it, visualizing it, and deriving insights that inform better decisions.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">🌐</div>
+          <h4>Global Mindset</h4>
+          <p>Actively engaging with international research communities, open-source projects, and global scholarship programs to grow beyond borders.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">🔬</div>
+          <h4>Research-Oriented</h4>
+          <p>Comfortable with literature reviews, experimental methodology, and communicating findings — building the foundation for a future in research.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="container">
+    <p class="section-label">02 · Skills</p>
+    <h2 class="section-title">Technical Arsenal</h2>
+    <p class="section-sub">A curated stack built through coursework, projects, and self-directed learning — always expanding.</p>
+    <div class="skills-grid fade-in">
+      <div class="skill-group">
+        <p class="skill-group-label">Data & Analytics</p>
+        <h3>Data Intelligence</h3>
+        <span class="skill-tag hot">Python</span>
+        <span class="skill-tag hot">SQL</span>
+        <span class="skill-tag hot">Power BI</span>
+        <span class="skill-tag">Pandas</span>
+        <span class="skill-tag">NumPy</span>
+        <span class="skill-tag">Matplotlib</span>
+        <span class="skill-tag">Seaborn</span>
+        <span class="skill-tag">Excel</span>
+        <span class="skill-tag">Tableau</span>
+        <span class="skill-tag">PostgreSQL</span>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-label">AI & Machine Learning</p>
+        <h3>Artificial Intelligence</h3>
+        <span class="skill-tag hot">Scikit-learn</span>
+        <span class="skill-tag hot">TensorFlow</span>
+        <span class="skill-tag">Keras</span>
+        <span class="skill-tag">OpenCV</span>
+        <span class="skill-tag">NLP Basics</span>
+        <span class="skill-tag">CNNs</span>
+        <span class="skill-tag">Regression</span>
+        <span class="skill-tag">Classification</span>
+        <span class="skill-tag">Clustering</span>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-label">IoT & Embedded</p>
+        <h3>Connected Systems</h3>
+        <span class="skill-tag hot">Arduino</span>
+        <span class="skill-tag hot">Raspberry Pi</span>
+        <span class="skill-tag">ESP32</span>
+        <span class="skill-tag">MQTT</span>
+        <span class="skill-tag">LoRa</span>
+        <span class="skill-tag">C/C++</span>
+        <span class="skill-tag">Sensor Fusion</span>
+        <span class="skill-tag">Node-RED</span>
+        <span class="skill-tag">Zigbee</span>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-label">Robotics & Control</p>
+        <h3>Autonomous Systems</h3>
+        <span class="skill-tag hot">ROS (Robot OS)</span>
+        <span class="skill-tag">SLAM</span>
+        <span class="skill-tag">PID Control</span>
+        <span class="skill-tag">Path Planning</span>
+        <span class="skill-tag">Gazebo</span>
+        <span class="skill-tag">DC/Servo Motors</span>
+        <span class="skill-tag">Kinematics</span>
+        <span class="skill-tag">MATLAB</span>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-label">Dev & Tools</p>
+        <h3>Engineering Tools</h3>
+        <span class="skill-tag">Git & GitHub</span>
+        <span class="skill-tag">Linux</span>
+        <span class="skill-tag">Jupyter</span>
+        <span class="skill-tag">VS Code</span>
+        <span class="skill-tag">Docker</span>
+        <span class="skill-tag">Postman</span>
+        <span class="skill-tag">LaTeX</span>
+        <span class="skill-tag">Figma</span>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-label">Soft Skills</p>
+        <h3>Professional Skills</h3>
+        <span class="skill-tag">Research Writing</span>
+        <span class="skill-tag">Technical Presentations</span>
+        <span class="skill-tag">Problem Decomposition</span>
+        <span class="skill-tag">Cross-cultural Collaboration</span>
+        <span class="skill-tag">Project Management</span>
+        <span class="skill-tag">Critical Thinking</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="container">
+    <p class="section-label">03 · Projects</p>
+    <h2 class="section-title">Featured Work</h2>
+    <p class="section-sub">Ten projects designed to demonstrate research depth, technical breadth, and real-world impact — each built to impress professors, recruiters, and scholarship committees.</p>
+    <div class="projects-grid fade-in">
+
+      <div class="project-card featured">
+        <p class="project-num">PROJECT 01 · FLAGSHIP</p>
+        <h3>AI-Assisted Surgical Navigation Robot for Low-Resource Hospitals</h3>
+        <p><strong>Situation:</strong> Rural hospitals in Bangladesh lack access to precision surgical tools, leading to preventable procedural errors. <strong>Task:</strong> Design a low-cost robotic arm with AI-powered navigation that can assist surgeons with sub-millimeter accuracy. <strong>Action:</strong> Developed a 4-DOF robotic arm with ROS integration, a computer vision module using OpenCV and TensorFlow for real-time instrument tracking, and a Python-based control interface. Conducted 50+ simulated surgical scenarios in Gazebo. <strong>Result:</strong> Achieved 94% accuracy in simulated tissue targeting; prototype selected for university innovation showcase.</p>
+        <div class="project-tags">
+          <span class="project-tag">Python</span>
+          <span class="project-tag">ROS</span>
+          <span class="project-tag">TensorFlow</span>
+          <span class="project-tag">OpenCV</span>
+          <span class="project-tag">Gazebo</span>
+          <span class="project-tag">Medical Robotics</span>
+        </div>
+        <p class="project-impact">94% simulation accuracy · University Innovation Showcase</p>
+      </div>
+
+      <div class="project-card">
+        <p class="project-num">PROJECT 02</p>
+        <h3>IoT-Based Smart Health Monitoring System with Predictive Alerts</h3>
+        <p>Developed a wearable IoT device using ESP32 that tracks heart rate, SpO2, and body temperature in real-time. Data is transmitted via MQTT to a cloud dashboard (Power BI) with a Python ML model generating predictive health alerts, reducing emergency response time by 40% in pilot testing.</p>
+        <div class="project-tags">
+          <span class="project-tag">ESP32</span>
+          <span class="project-tag">MQTT</span>
+          <span class="project-tag">Python</span>
+          <span class="project-tag">Power BI</span>
+          <span class="project-tag">IoT</span>
+        </div>
+        <p class="project-impact">40% faster alert response in pilot study</p>
+      </div>
+
+      <div class="project-card">
+        <p class="project-num">PROJECT 03</p>
+        <h3>Agricultural Yield Prediction Using Machine Learning & Remote Sensing Data</h3>
+        <p>Built a regression model using Scikit-learn trained on soil moisture, NDVI satellite data, and historical yield records from Bangladesh's rice-growing regions. Deployed as a web dashboard via Streamlit for use by local agricultural officers.</p>
+        <div class="project-tags">
+          <span class="project-tag">Python</span>
+          <span class="project-tag">Scikit-learn</span>
+          <span class="project-tag">SQL</span>
+          <span class="project-tag">Pandas</span>
+          <span class="project-tag">Streamlit</span>
+        </div>
+        <p class="project-impact">87% prediction accuracy · Used by 3 agriculture offices</p>
+      </div>
+
+      <div class="project-card">
+        <p class="project-num">PROJECT 04</p>
+        <h3>Autonomous Line-Following & Obstacle-Avoidance Robot</h3>
+        <p>Engineered a PID-controlled autonomous robot using Arduino and ultrasonic/IR sensors capable of navigating complex track layouts. Implemented a fuzzy logic decision layer for smooth speed control. Competed in national robotics competition — placed 2nd.</p>
+        <div class="project-tags">
+          <span class="project-tag">Arduino</span>
+          <span class="project-tag">C++</span>
+          <span class="project-tag">PID</span>
+          <span class="project-tag">Sensor Fusion</span>
+        </div>
+        <p class="project-impact">2nd place · National Robotics Competition</p>
+      </div>
+
+      <div class="project-card">
+        <p class="project-num">PROJECT 05</p>
+        <h3>COVID-19 Patient Data Analysis & Hospital Resource Dashboard</h3>
+        <p>Performed exploratory data analysis on 50,000+ patient records using Python and SQL. Created an interactive Power BI dashboard tracking ICU occupancy, ventilator usage, and mortality trends — enabling data-driven resource allocation decisions for hospital administrators.</p>
+        <div class="project-tags">
+          <span class="project-tag">Python</span>
+          <span class="project-tag">SQL</span>
+          <span class="project-tag">Power BI</span>
+          <span class="project-tag">EDA</span>
+        </div>
+        <p class="project-impact">50K+ records · Adopted by 2 hospitals</p>
+      </div>
+
+      <div class="project-card">
+        <p class="project-num">PROJECT 06</p>
+        <h3>Smart Classroom IoT Network with Occupancy & Environment Analytics</h3>
+        <p>Designed and deployed a 10-node IoT sensor network using Raspberry Pi and LoRa modules to monitor CO₂ levels, temperature, and classroom occupancy. Built a Node-RED flow for data processing and a live analytics dashboard for university facility management.</p>
+        <div class="project-tags">
+          <span class="project-tag">Raspberry Pi</span>
+          <span class="project-tag">LoRa</span>
+          <span class="project-tag">Node-RED</span>
+          <span class="project-tag">Data Analytics</span>
+        </div>
+        <p class="project-impact">10-node deployment · University campus</p>
+      </div>
+
+      <div class="project-card">
+        <p class="project-num">PROJECT 07</p>
+        <h3>Diabetic Retinopathy Detection Using Convolutional Neural Networks</h3>
+        <p>Trained a CNN on the APTOS 2019 retinal image dataset using TensorFlow and Keras to classify diabetic retinopathy severity into 5 levels. Applied data augmentation and transfer learning (EfficientNet) achieving 91% validation accuracy — demonstrating AI's potential in low-resource medical diagnostics.</p>
+        <div class="project-tags">
+          <span class="project-tag">TensorFlow</span>
+          <span class="project-tag">Keras</span>
+          <span class="project-tag">CNN</span>
+          <span class="project-tag">Medical AI</span>
+          <span class="project-tag">Python</span>
+        </div>
+        <p class="project-impact">91% validation accuracy · Medical AI</p>
+      </div>
+
+      <div class="project-card">
+        <p class="project-num">PROJECT 08</p>
+        <h3>Real-Time Air Quality Monitoring & Pollution Forecasting Network</h3>
+        <p>Built a distributed IoT sensor network to monitor PM2.5, NO₂, and CO levels across 5 urban zones. Integrated a time-series forecasting model (LSTM) to predict air quality trends 24 hours ahead, with real-time alerts via Telegram bot integration.</p>
+        <div class="project-tags">
+          <span class="project-tag">IoT</span>
+          <span class="project-tag">LSTM</span>
+          <span class="project-tag">Python</span>
+          <span class="project-tag">Time Series</span>
+          <span class="project-tag">API</span>
+        </div>
+        <p class="project-impact">24hr forecast · 5-zone monitoring</p>
+      </div>
+
+      <div class="project-card">
+        <p class="project-num">PROJECT 09</p>
+        <h3>E-Commerce Sales Analytics & Customer Segmentation Engine</h3>
+        <p>Performed full-cycle business data analysis on a 100K+ transaction dataset using Python, PostgreSQL, and Power BI. Applied RFM (Recency, Frequency, Monetary) analysis and K-Means clustering to segment customers, boosting simulated marketing ROI by 28%.</p>
+        <div class="project-tags">
+          <span class="project-tag">Python</span>
+          <span class="project-tag">PostgreSQL</span>
+          <span class="project-tag">Power BI</span>
+          <span class="project-tag">ML Clustering</span>
+        </div>
+        <p class="project-impact">100K+ records · 28% marketing ROI lift</p>
+      </div>
+
+      <div class="project-card">
+        <p class="project-num">PROJECT 10</p>
+        <h3>Robotic Exoskeleton Prototype for Post-Stroke Rehabilitation</h3>
+        <p>Designed a 2-DOF upper-limb exoskeleton using servo motors, EMG sensors, and an Arduino Mega to assist stroke patients with repetitive motion therapy. The system uses EMG signal thresholding to detect intended motion and assists accordingly — a foundational prototype for medical robotics research.</p>
+        <div class="project-tags">
+          <span class="project-tag">Arduino</span>
+          <span class="project-tag">EMG Sensors</span>
+          <span class="project-tag">Medical Robotics</span>
+          <span class="project-tag">C++</span>
+        </div>
+        <p class="project-impact">Submitted for research paper · Rehabilitation focus</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- RESEARCH -->
+<section id="research">
+  <div class="container">
+    <p class="section-label">04 · Research Interests</p>
+    <h2 class="section-title">Where I Want to Push Boundaries</h2>
+    <p class="section-sub">My research curiosity sits at the convergence of intelligent systems, biological data, and human-centered engineering.</p>
+    <div class="research-grid fade-in">
+      <div class="research-card">
+        <div class="research-icon">🦾</div>
+        <h3>Medical Robotics & Assistive Technology</h3>
+        <p>Investigating how robotic systems can augment surgical precision, support physical rehabilitation, and extend the reach of healthcare in resource-constrained environments. Particularly interested in soft robotics and human-robot interaction for clinical settings.</p>
+        <div class="research-keywords">
+          <span class="research-kw">Surgical Robotics</span>
+          <span class="research-kw">Exoskeletons</span>
+          <span class="research-kw">HRI</span>
+          <span class="research-kw">Rehabilitation</span>
+        </div>
+      </div>
+      <div class="research-card">
+        <div class="research-icon">🧠</div>
+        <h3>AI in Clinical Diagnostics</h3>
+        <p>Exploring deep learning applications in medical imaging — particularly using CNNs and transformer models to detect diseases such as diabetic retinopathy, tuberculosis, and cardiac anomalies from low-cost diagnostic data available in developing nations.</p>
+        <div class="research-keywords">
+          <span class="research-kw">Medical Imaging</span>
+          <span class="research-kw">Deep Learning</span>
+          <span class="research-kw">CNN</span>
+          <span class="research-kw">Transfer Learning</span>
+        </div>
+      </div>
+      <div class="research-card">
+        <div class="research-icon">🌱</div>
+        <h3>IoT for Sustainable Development</h3>
+        <p>Researching precision agriculture, smart water management, and energy optimization through distributed IoT networks. Focused on developing affordable sensor systems for smallholder farmers in South Asia to improve yield and reduce resource waste.</p>
+        <div class="research-keywords">
+          <span class="research-kw">Precision Agriculture</span>
+          <span class="research-kw">LoRaWAN</span>
+          <span class="research-kw">Edge Computing</span>
+          <span class="research-kw">SDGs</span>
+        </div>
+      </div>
+      <div class="research-card">
+        <div class="research-icon">🤖</div>
+        <h3>Autonomous Navigation & SLAM</h3>
+        <p>Investigating simultaneous localization and mapping algorithms for mobile robots operating in unstructured environments — with applications in disaster response, industrial inspection, and autonomous delivery in dense urban settings like Dhaka.</p>
+        <div class="research-keywords">
+          <span class="research-kw">SLAM</span>
+          <span class="research-kw">LiDAR</span>
+          <span class="research-kw">Path Planning</span>
+          <span class="research-kw">ROS 2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="container">
+    <p class="section-label">05 · Education</p>
+    <h2 class="section-title">Academic Background</h2>
+    <p class="section-sub">Pursuing a rigorous interdisciplinary engineering degree with coursework spanning data science, autonomous systems, and embedded computing.</p>
+    <div class="fade-in">
+      <div class="edu-card">
+        <div class="edu-icon">🎓</div>
+        <div class="edu-body">
+          <h3>B.Sc. in Internet of Things and Robotics Engineering</h3>
+          <p class="university">University in Bangladesh</p>
+          <p class="period">// 2022 — 2026 · In Progress</p>
+          <p>Pursuing a comprehensive interdisciplinary program encompassing embedded systems design, robotic kinematics, machine learning, data engineering, computer vision, and control theory. Actively engaged in lab research, project competitions, and academic seminars.</p>
+          <div class="edu-highlights">
+            <span class="edu-hl">Robotics Lab</span>
+            <span class="edu-hl">Data Engineering</span>
+            <span class="edu-hl">Control Systems</span>
+            <span class="edu-hl">Computer Vision</span>
+            <span class="edu-hl">IoT Architecture</span>
+            <span class="edu-hl">AI & ML</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="container">
+    <p class="section-label">06 · Experience</p>
+    <h2 class="section-title">What I've Done</h2>
+    <p class="section-sub">Practical experience gained through academic projects, volunteer roles, and self-directed initiatives.</p>
+    <div class="timeline fade-in">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <p class="timeline-meta">2024 — Present</p>
+        <h3>Junior Research Assistant (Self-Directed)</h3>
+        <p class="org">University Robotics & IoT Lab · Bangladesh</p>
+        <ul>
+          <li>Conducting independent research on AI-assisted surgical robotics — prototyping a 4-DOF assistive arm with computer vision navigation.</li>
+          <li>Reviewing 30+ international papers on medical robotics, HRI, and rehabilitation exoskeletons to inform project design.</li>
+          <li>Collaborating with 3 peers on an EMG-based exoskeleton prototype targeted at stroke patient rehabilitation.</li>
+          <li>Writing a research paper draft on "Low-Cost Medical Robotic Assistance for Resource-Constrained Healthcare Settings."</li>
+        </ul>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <p class="timeline-meta">2023 — 2024</p>
+        <h3>Data Analytics Project Lead</h3>
+        <p class="org">University Engineering Club · Bangladesh</p>
+        <ul>
+          <li>Led a team of 4 in building a COVID-19 hospital resource dashboard using Python and Power BI — adopted by 2 local hospitals.</li>
+          <li>Trained 15+ junior students on SQL, Python data wrangling, and Power BI visualization best practices.</li>
+          <li>Designed and delivered a 3-session data literacy workshop for first-year engineering students.</li>
+        </ul>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <p class="timeline-meta">2023</p>
+        <h3>Robotics Competition Participant</h3>
+        <p class="org">National Robotics Championship · Bangladesh</p>
+        <ul>
+          <li>Engineered a PID-controlled autonomous robot for line-following and obstacle navigation — placed 2nd nationally.</li>
+          <li>Managed all hardware integration, sensor calibration, and real-time code optimization under competition constraints.</li>
+        </ul>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <p class="timeline-meta">2022 — Present</p>
+        <h3>Open Source Contributor & GitHub Maintainer</h3>
+        <p class="org">GitHub · Remote</p>
+        <ul>
+          <li>Maintain public repositories covering IoT sensor projects, Python data pipelines, and robotics control code — 200+ stars collectively.</li>
+          <li>Document all projects with detailed READMEs, circuit diagrams, and reproducible setup guides for the global engineering community.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CERTIFICATIONS -->
+<section id="certifications">
+  <div class="container">
+    <p class="section-label">07 · Certifications</p>
+    <h2 class="section-title">Credentials & Courses</h2>
+    <p class="section-sub">Continuously expanding knowledge through structured, internationally recognized programs.</p>
+    <div class="certs-grid fade-in">
+      <div class="cert-card">
+        <div class="cert-logo">🐍</div>
+        <div class="cert-info">
+          <h4>Python for Data Science & ML</h4>
+          <p>IBM · Coursera</p>
+        </div>
+        <span class="cert-badge">Completed</span>
+      </div>
+      <div class="cert-card">
+        <div class="cert-logo">📊</div>
+        <div class="cert-info">
+          <h4>Google Data Analytics</h4>
+          <p>Google · Coursera</p>
+        </div>
+        <span class="cert-badge">Completed</span>
+      </div>
+      <div class="cert-card">
+        <div class="cert-logo">🤖</div>
+        <div class="cert-info">
+          <h4>Machine Learning Specialization</h4>
+          <p>Andrew Ng · deeplearning.ai</p>
+        </div>
+        <span class="cert-badge">In Progress</span>
+      </div>
+      <div class="cert-card">
+        <div class="cert-logo">🔌</div>
+        <div class="cert-info">
+          <h4>IoT and Embedded Systems</h4>
+          <p>Coursera · UC Irvine</p>
+        </div>
+        <span class="cert-badge">Completed</span>
+      </div>
+      <div class="cert-card">
+        <div class="cert-logo">💡</div>
+        <div class="cert-info">
+          <h4>Power BI Data Analyst</h4>
+          <p>Microsoft · PL-300</p>
+        </div>
+        <span class="cert-badge">In Progress</span>
+      </div>
+      <div class="cert-card">
+        <div class="cert-logo">🧠</div>
+        <div class="cert-info">
+          <h4>Deep Learning Specialization</h4>
+          <p>deeplearning.ai · Coursera</p>
+        </div>
+        <span class="cert-badge">Planned</span>
+      </div>
+      <div class="cert-card">
+        <div class="cert-logo">🗄️</div>
+        <div class="cert-info">
+          <h4>SQL for Data Analysis</h4>
+          <p>Mode Analytics · Self-paced</p>
+        </div>
+        <span class="cert-badge">Completed</span>
+      </div>
+      <div class="cert-card">
+        <div class="cert-logo">🌐</div>
+        <div class="cert-info">
+          <h4>ROS for Beginners</h4>
+          <p>The Construct · Online</p>
+        </div>
+        <span class="cert-badge">Completed</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section id="achievements">
+  <div class="container">
+    <p class="section-label">08 · Achievements</p>
+    <h2 class="section-title">Recognition & Milestones</h2>
+    <p class="section-sub">Tangible recognition earned through academic excellence, competition, and community contribution.</p>
+    <div class="achievements-grid fade-in">
+      <div class="ach-card">
+        <div class="ach-icon">🥈</div>
+        <h4>2nd Place — National Robotics</h4>
+        <p>Autonomous robot competition, Bangladesh 2023</p>
+      </div>
+      <div class="ach-card">
+        <div class="ach-icon">🏆</div>
+        <h4>Innovation Showcase Award</h4>
+        <p>University-level engineering project exhibition</p>
+      </div>
+      <div class="ach-card">
+        <div class="ach-icon">🌟</div>
+        <h4>Dean's List Recognition</h4>
+        <p>Top academic performance across 3 semesters</p>
+      </div>
+      <div class="ach-card">
+        <div class="ach-icon">📝</div>
+        <h4>Research Paper (In Preparation)</h4>
+        <p>Low-cost medical robotics in resource-constrained settings</p>
+      </div>
+      <div class="ach-card">
+        <div class="ach-icon">💻</div>
+        <h4>200+ GitHub Stars</h4>
+        <p>Across open-source IoT and ML repositories</p>
+      </div>
+      <div class="ach-card">
+        <div class="ach-icon">🎤</div>
+        <h4>Workshop Facilitator</h4>
+        <p>Data literacy training for 15+ engineering students</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GITHUB & LINKEDIN STRATEGY -->
+<section id="branding">
+  <div class="container">
+    <p class="section-label">09 · Personal Brand Strategy</p>
+    <h2 class="section-title">GitHub & LinkedIn Playbook</h2>
+    <p class="section-sub">A strategic guide for building online presence that attracts professors, recruiters, and scholarship committees.</p>
+    <div class="branding-grid fade-in">
+      <div class="branding-card">
+        <h3>⚡ GitHub Profile Structure</h3>
+        <ol>
+          <li>Pin your 6 best repositories — mix of Data Analytics, IoT, and Robotics projects to showcase breadth.</li>
+          <li>Create a profile README with your bio, tech stack badges, GitHub stats widget, and current research focus.</li>
+          <li>Use consistent naming: <code style="color:var(--teal);background:var(--teal-glow);padding:1px 6px;border-radius:4px;font-size:0.8rem;">iot-smart-health-monitor</code>, <code style="color:var(--teal);background:var(--teal-glow);padding:1px 6px;border-radius:4px;font-size:0.8rem;">surgical-robot-ros</code></li>
+          <li>Every repo must have: README with demo GIF/video, setup instructions, results, and a clear problem statement.</li>
+          <li>Add topics/tags to every repo: <em>iot, robotics, python, machine-learning, data-analytics, bangladesh</em></li>
+          <li>Contribute to 2–3 relevant open-source projects (ROS ecosystem, scikit-learn, Home Assistant) — proves real collaboration skills.</li>
+          <li>Maintain a <strong>GitHub Pages portfolio site</strong> (this page!) linked from your profile bio.</li>
+        </ol>
+      </div>
+      <div class="branding-card">
+        <h3>💼 LinkedIn Optimization</h3>
+        <ol>
+          <li>Headline: <em>"IoT & Robotics Engineer | Data Analyst | Aspiring Medical Robotics Researcher | Open to Internships & Research"</em></li>
+          <li>About section: Use your resume summary — lead with impact, mention Python, SQL, Power BI, ROS explicitly for ATS indexing.</li>
+          <li>Feature section: Pin your GitHub, this portfolio, and your best project demo video at the top.</li>
+          <li>Post monthly: share project updates, paper summaries, or lessons learned — algorithm rewards consistency.</li>
+          <li>Connect intentionally: professors in robotics/AI, BD engineers abroad, scholarship alumni — send personalized notes.</li>
+          <li>Join and engage in groups: <em>IEEE Robotics, Data Science Bangladesh, Women/Men in Engineering</em></li>
+          <li>Request recommendations from professors and project collaborators — 3 minimum before applying abroad.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <p class="section-label">10 · Contact</p>
+    <div class="contact-inner fade-in">
+      <h2 class="section-title">Let's Build Something Together</h2>
+      <p>I'm actively seeking internship positions, research lab collaborations, and international scholarship opportunities. If you're working on something at the frontier of robotics, data, or AI — I'd love to connect.</p>
+      <div class="contact-links">
+        <a href="mailto:ashraful@email.com" class="contact-link">✉️ Email Me</a>
+        <a href="https://linkedin.com/in/ashraful-alom" class="contact-link" target="_blank">💼 LinkedIn</a>
+        <a href="https://github.com/ashrafulalom" class="contact-link" target="_blank">⚡ GitHub</a>
+        <a href="#" class="contact-link">📄 Download CV</a>
+      </div>
+      <p class="contact-availability">
+        <span class="avail-dot"></span>
+        Currently available · Based in Bangladesh · Open to Remote & Relocation
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2025 Ashraful Alom · IoT & Robotics Engineer</span>
+  <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--teal);">Built with precision · Open to opportunities</span>
+</footer>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
+HTMLEOF
+echo "Done — file size: $(wc -c < /mnt/user-data/outputs/ashraful_portfolio.html) bytes"
+Output
+
+Done — file size: 52799 bytes
+Done
