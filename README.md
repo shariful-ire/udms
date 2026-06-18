@@ -166,3 +166,9 @@ cd frontend
 npm run type-check
 npm run lint
 ```
+
+
+---
+diningmgr / Manager@1234!
+or provost / Admin@1234!
+---
