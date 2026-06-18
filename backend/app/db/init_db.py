@@ -9,6 +9,10 @@ from app.core.security import hash_password
 from app.db.base import Base
 from app.db.session import engine
 
+import app.models.user  # noqa: F401
+import app.models.meal  # noqa: F401
+import app.models.expense  # noqa: F401
+
 
 async def create_tables() -> None:
     """Create all tables if they do not exist (development convenience)."""

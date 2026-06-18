@@ -17,8 +17,8 @@ def send_verification_email_task(self, email: str, username: str, otp: str) -> d
         async def _send():
             service = EmailService()
             await service.send_verification_email(
-                email=email,
-                username=username,
+                to_email=email,
+                full_name=username,
                 otp=otp,
             )
 
@@ -41,8 +41,8 @@ def send_password_reset_task(self, email: str, username: str, otp: str) -> dict:
         async def _send():
             service = EmailService()
             await service.send_password_reset_email(
-                email=email,
-                username=username,
+                to_email=email,
+                full_name=username,
                 otp=otp,
             )
 
@@ -65,8 +65,7 @@ def send_welcome_email_task(self, email: str, username: str, full_name: str) -> 
         async def _send():
             service = EmailService()
             await service.send_welcome_email(
-                email=email,
-                username=username,
+                to_email=email,
                 full_name=full_name,
             )
 

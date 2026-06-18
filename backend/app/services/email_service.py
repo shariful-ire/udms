@@ -92,6 +92,11 @@ class EmailService:
             html_body=html,
         )
 
+    async def send_raw_email(self, email: str, subject: str, body: str) -> bool:
+        """Send a plain-text email (rendered as HTML pre-formatted)."""
+        html_body = f"<pre style='font-family:sans-serif;white-space:pre-wrap'>{body}</pre>"
+        return await self._send(to=email, subject=subject, html_body=html_body)
+
     async def send_welcome_email(self, to_email: str, full_name: str) -> bool:
         html = self._render(
             "welcome.html",

@@ -6,8 +6,8 @@ from app.core.config import settings
 
 celery_app = Celery(
     "udms",
-    broker=settings.CELERY_BROKER_URL,
-    backend=settings.CELERY_RESULT_BACKEND,
+    broker=settings.CELERY_BROKER,
+    backend=settings.CELERY_BACKEND,
     include=[
         "app.tasks.email_tasks",
         "app.tasks.report_tasks",

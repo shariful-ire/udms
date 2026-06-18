@@ -13,6 +13,7 @@ from starlette.exceptions import HTTPException
 from app.api.v1.router import api_v1_router
 from app.core.config import settings
 from app.core.middleware import setup_middlewares
+from app.db.init_db import create_tables
 from app.db.session import engine
 
 # ─── Logging Setup ────────────────────────────────────────────────────────────
@@ -41,11 +42,12 @@ async def lifespan(app: FastAPI):
     logger.info(f"🚀 Starting {settings.APP_NAME} v{settings.APP_VERSION}")
     logger.info(f"   Environment: {settings.ENVIRONMENT}")
 
-    # Verify DB connection
+    # Verify DB connection and create tables
     try:
         async with engine.connect() as conn:
             await conn.execute(__import__("sqlalchemy", fromlist=["text"]).text("SELECT 1"))
         logger.info("✅ Database connection verified")
+        await create_tables()
     except Exception as exc:
         logger.error(f"❌ Database connection failed: {exc}")
 
