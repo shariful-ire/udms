@@ -126,6 +126,59 @@ class ExpenseResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ─── Earning Schemas ─────────────────────────────────────────────────────────
+class EarningCreate(BaseModel):
+    description: str = Field(..., min_length=2, max_length=200)
+    category: str = Field(
+        ...,
+        pattern=r"^(MEAL_PAYMENT|DEPOSIT|GRANT|OTHER)$",
+    )
+    amount: Decimal = Field(..., gt=0, decimal_places=2)
+    earning_date: date
+    notes: Optional[str] = None
+
+
+class EarningUpdate(BaseModel):
+    description: Optional[str] = Field(None, min_length=2, max_length=200)
+    category: Optional[str] = None
+    amount: Optional[Decimal] = Field(None, gt=0)
+    earning_date: Optional[date] = None
+    notes: Optional[str] = None
+
+
+class EarningResponse(BaseModel):
+    id: str
+    description: str
+    category: str
+    amount: Decimal
+    earning_date: date
+    notes: Optional[str] = None
+    created_by: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+# ─── Dashboard Stats Schema ─────────────────────────────────────────────────
+class MealSessionStats(BaseModel):
+    start_date: date
+    end_date: date
+    total_possible_meals: int
+    consumed_meals: int
+    remaining_meals: int
+    per_meal_cost: Optional[Decimal] = None
+    remaining_cost: Optional[Decimal] = None
+
+
+class DashboardStats(BaseModel):
+    total_expenses: Decimal
+    total_earnings: Decimal
+    net_balance: Decimal
+    active_customers: int
+    session: MealSessionStats
+
+
 # ─── Meal Request Schemas ─────────────────────────────────────────────────────
 class MealRequestCreate(BaseModel):
     date: date

@@ -26,6 +26,7 @@ const AUTH_PATHS = [
   "/meals",
   "/requests",
   "/expenses",
+  "/earnings",
   "/reports",
   "/audit",
   "/settings",
@@ -33,14 +34,20 @@ const AUTH_PATHS = [
 ];
 
 export function middleware(request) {
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
 
-  // Get access token from cookie (set by login response header)
-  // Note: the actual access token lives in memory (Zustand), but we set a
-  // non-HttpOnly presence flag cookie `udms_session` on login so middleware
-  // can detect an active session without exposing the token.
   const sessionFlag = request.cookies.get("udms_session");
   const isAuthenticated = !!sessionFlag;
+
+  // If arriving at login with session=expired, clear the stale cookie
+  const isPublicPath = PUBLIC_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
+  if (isPublicPath && isAuthenticated && searchParams.get("session") === "expired") {
+    const response = NextResponse.redirect(new URL(pathname, request.url));
+    response.cookies.set("udms_session", "", { path: "/", maxAge: 0 });
+    return response;
+  }
 
   // Root redirect
   if (pathname === "/") {
@@ -50,9 +57,6 @@ export function middleware(request) {
   }
 
   // Redirect authenticated users away from auth pages
-  const isPublicPath = PUBLIC_PATHS.some(
-    (p) => pathname === p || pathname.startsWith(p + "/")
-  );
   if (isPublicPath && isAuthenticated) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }

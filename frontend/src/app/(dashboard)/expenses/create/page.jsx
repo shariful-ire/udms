@@ -20,6 +20,8 @@ export default function CreateExpensePage() {
     onSuccess: () => {
       toast.success("Expense recorded");
       qc.invalidateQueries({ queryKey: ["expenses"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["reports"] });
       router.push("/expenses");
     },
     onError: (e) => toast.error(getErrorMessage(e)),

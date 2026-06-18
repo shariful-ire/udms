@@ -1,9 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Users, UtensilsCrossed, CreditCard, ClipboardList, TrendingUp, UserCheck } from "lucide-react";
+import {
+  Users, UtensilsCrossed, CreditCard, ClipboardList,
+  TrendingUp, UserCheck, Wallet, Calculator, Calendar,
+} from "lucide-react";
 import Link from "next/link";
-import { usersApi, mealsApi, requestsApi, reportsApi, auditApi } from "@/lib/axios";
+import { usersApi, mealsApi, requestsApi, reportsApi, auditApi, dashboardApi } from "@/lib/axios";
 import { queryKeys } from "@/lib/queryClient";
 import { useAuthStore } from "@/store/authStore";
 import { usePermissions } from "@/lib/hooks/usePermissions";
@@ -30,10 +33,18 @@ function ManagerDashboard() {
       reportsApi.monthly({ year: now.getFullYear(), month: now.getMonth() + 1 }).then((r) => r.data.data),
   });
 
+  const { data: dashStats, isLoading: loadingDash } = useQuery({
+    queryKey: queryKeys.dashboard.stats,
+    queryFn: () => dashboardApi.stats().then((r) => r.data.data),
+  });
+
   const { data: auditData, isLoading: loadingAudit } = useQuery({
     queryKey: ["audit", "recent"],
     queryFn: () => auditApi.list({ per_page: 8 }).then((r) => r.data),
   });
+
+  const totalEarnings = dashStats?.total_earnings ?? report?.total_income ?? 0;
+  const totalExpenses = dashStats?.total_expenses ?? report?.total_expense ?? 0;
 
   const stats = [
     {
@@ -43,22 +54,22 @@ function ManagerDashboard() {
       iconColor: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
     },
     {
-      title: "Enrolled Customers",
-      value: userStats?.total_customers ?? 0,
+      title: "Active Customers",
+      value: dashStats?.active_customers ?? userStats?.total_customers ?? 0,
       icon: <UserCheck className="h-5 w-5" />,
       iconColor: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
     },
     {
-      title: "Monthly Income",
-      formatted: formatCurrency(report?.total_income ?? 0),
-      value: 0,
+      title: "Total Earnings",
+      formatted: formatCurrency(totalEarnings),
+      value: Math.round(Number(totalEarnings)),
       icon: <TrendingUp className="h-5 w-5" />,
       iconColor: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
     },
     {
-      title: "Monthly Expenses",
-      formatted: formatCurrency(report?.total_expense ?? 0),
-      value: 0,
+      title: "Total Expenses",
+      formatted: formatCurrency(totalExpenses),
+      value: Math.round(Number(totalExpenses)),
       icon: <CreditCard className="h-5 w-5" />,
       iconColor: "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
     },
@@ -72,18 +83,87 @@ function ManagerDashboard() {
     created_at: log.created_at,
   }));
 
+  const session = dashStats?.session;
+  const netBalance = dashStats?.net_balance ?? (totalEarnings - totalExpenses);
+
   return (
     <div className="space-y-6">
       <WelcomeBanner />
 
       {/* Stat cards */}
-      {loadingStats || loadingReport ? (
+      {loadingStats && loadingReport && loadingDash ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((s) => <StatCard key={s.title} {...s} />)}
+        </div>
+      )}
+
+      {/* Net Balance + Meal Session */}
+      {(dashStats || report) && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border bg-card p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
+                <Wallet className="h-4 w-4" />
+              </div>
+              <p className="text-sm font-medium text-muted-foreground">Net Balance</p>
+            </div>
+            <p className={`text-2xl font-bold ${netBalance >= 0 ? "text-green-600" : "text-red-600"}`}>
+              {formatCurrency(netBalance)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">earnings - expenses</p>
+          </div>
+
+          <div className="rounded-xl border bg-card p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+                <Calculator className="h-4 w-4" />
+              </div>
+              <p className="text-sm font-medium text-muted-foreground">Per Meal Cost</p>
+            </div>
+            <p className="text-2xl font-bold">
+              {formatCurrency(session?.per_meal_cost ?? report?.per_meal_cost ?? 0)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">this week&apos;s session</p>
+          </div>
+
+          <div className="rounded-xl border bg-card p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400">
+                <UtensilsCrossed className="h-4 w-4" />
+              </div>
+              <p className="text-sm font-medium text-muted-foreground">Meals Consumed</p>
+            </div>
+            <p className="text-2xl font-bold">
+              {session?.consumed_meals ?? report?.total_meals ?? 0}
+              {session && (
+                <span className="text-sm font-normal text-muted-foreground ml-1">
+                  / {session.total_possible_meals}
+                </span>
+              )}
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {session ? `${session.remaining_meals} remaining` : "this month"}
+            </p>
+          </div>
+
+          <div className="rounded-xl border bg-card p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400">
+                <Calendar className="h-4 w-4" />
+              </div>
+              <p className="text-sm font-medium text-muted-foreground">Remaining Cost</p>
+            </div>
+            <p className="text-2xl font-bold">
+              {formatCurrency(session?.remaining_cost ?? 0)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {session ? `${session.start_date} — ${session.end_date}` : "current period"}
+            </p>
+          </div>
         </div>
       )}
 
@@ -108,11 +188,12 @@ function ManagerDashboard() {
       </div>
 
       {/* Quick links */}
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-4">
         {[
           { href: "/users", label: "Manage Users", icon: <Users className="h-4 w-4" /> },
           { href: "/requests", label: "Review Requests", icon: <ClipboardList className="h-4 w-4" /> },
           { href: "/expenses", label: "Log Expenses", icon: <CreditCard className="h-4 w-4" /> },
+          { href: "/earnings", label: "Log Earnings", icon: <TrendingUp className="h-4 w-4" /> },
         ].map((link) => (
           <Link key={link.href} href={link.href}
             className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3.5 text-sm font-medium
@@ -141,25 +222,39 @@ function CustomerDashboard() {
       mealsApi.summary({ year: now.getFullYear(), month: now.getMonth() + 1 }).then((r) => r.data.data),
   });
 
+  const totalMeals = summary
+    ? (summary.breakdown?.BREAKFAST ?? 0) + (summary.breakdown?.LUNCH ?? 0) + (summary.breakdown?.DINNER ?? 0)
+    : 0;
+
   return (
     <div className="space-y-6">
       <WelcomeBanner />
 
       {/* Monthly summary cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-4">
         {loadingSummary ? (
-          Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
+          Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
         ) : (
-          ["BREAKFAST", "LUNCH", "DINNER"].map((t) => (
-            <div key={t} className="rounded-xl border bg-card p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">{MEAL_TYPE_ICONS[t]}</span>
-                <p className="text-sm font-medium text-muted-foreground">{MEAL_TYPE_LABELS[t]}</p>
+          <>
+            {["BREAKFAST", "LUNCH", "DINNER"].map((t) => (
+              <div key={t} className="rounded-xl border bg-card p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">{MEAL_TYPE_ICONS[t]}</span>
+                  <p className="text-sm font-medium text-muted-foreground">{MEAL_TYPE_LABELS[t]}</p>
+                </div>
+                <p className="text-2xl font-semibold">{summary?.breakdown?.[t] ?? 0}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">meals this month</p>
               </div>
-              <p className="text-2xl font-semibold">{summary?.breakdown?.[t] ?? 0}</p>
+            ))}
+            <div className="rounded-xl border bg-card p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">📊</span>
+                <p className="text-sm font-medium text-muted-foreground">Total</p>
+              </div>
+              <p className="text-2xl font-semibold">{totalMeals}</p>
               <p className="text-xs text-muted-foreground mt-0.5">meals this month</p>
             </div>
-          ))
+          </>
         )}
       </div>
 

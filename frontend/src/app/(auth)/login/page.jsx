@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { authApi } from "@/lib/axios";
+import { authApi, clearTokens } from "@/lib/axios";
 import { useAuthStore } from "@/store/authStore";
 import { getErrorMessage } from "@/lib/utils";
 
@@ -30,6 +30,11 @@ function LoginForm() {
 
   const redirect = searchParams.get("redirect") ?? "/dashboard";
   const sessionExpired = searchParams.get("session") === "expired";
+
+  useEffect(() => {
+    document.cookie = "udms_session=; path=/; max-age=0";
+    clearTokens();
+  }, []);
 
   const {
     register,

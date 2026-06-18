@@ -106,14 +106,13 @@ api.interceptors.response.use(
         isRefreshing = false;
         refreshSubscribers = [];
 
-        // Clear auth state and redirect to login
+        // Clear auth state, session cookie, and redirect to login
         clearTokens();
         if (typeof window !== "undefined") {
           const { useAuthStore } = await import("@/store/authStore").catch(() => ({ useAuthStore: null }));
           if (useAuthStore) useAuthStore.getState().logout();
+          document.cookie = "udms_session=; path=/; max-age=0";
 
-          // Only redirect if we're on a protected page — never redirect from login/public pages
-          // (avoids infinite loop when SessionHydrator runs on unauthenticated first load)
           const publicPaths = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email"];
           const isOnPublicPage = publicPaths.some((p) => window.location.pathname.startsWith(p));
           if (!isOnPublicPage) {
@@ -226,6 +225,18 @@ export const auditApi = {
 export const settingsApi = {
   get: () => api.get("/settings"),
   update: (data) => api.put("/settings", data),
+};
+
+export const earningsApi = {
+  list: (params) => api.get("/earnings", { params }),
+  create: (data) => api.post("/earnings", data),
+  get: (id) => api.get(`/earnings/${id}`),
+  update: (id, data) => api.put(`/earnings/${id}`, data),
+  delete: (id) => api.delete(`/earnings/${id}`),
+};
+
+export const dashboardApi = {
+  stats: () => api.get("/dashboard/stats"),
 };
 
 export default api;

@@ -103,6 +103,17 @@ export const queryKeys = {
     detail: (id) => ["audit", "detail", id],
   },
 
+  // Earnings
+  earnings: {
+    list: (params) => ["earnings", "list", params],
+    detail: (id) => ["earnings", "detail", id],
+  },
+
+  // Dashboard
+  dashboard: {
+    stats: ["dashboard", "stats"],
+  },
+
   // Settings
   settings: ["settings"],
 };

@@ -45,7 +45,13 @@ export default function ExpensesPage() {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => expensesApi.delete(id),
-    onSuccess: () => { toast.success("Expense deleted"); qc.invalidateQueries({ queryKey: ["expenses"] }); setDeleteId(null); },
+    onSuccess: () => {
+      toast.success("Expense deleted");
+      qc.invalidateQueries({ queryKey: ["expenses"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["reports"] });
+      setDeleteId(null);
+    },
     onError: (e) => toast.error(getErrorMessage(e)),
   });
 
@@ -92,18 +98,12 @@ export default function ExpensesPage() {
       />
 
       {/* Summary strip */}
-      {data?.meta?.total_amount != null && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border bg-card p-4">
-            <p className="text-xs text-muted-foreground">Total Expenses</p>
-            <p className="text-xl font-bold mt-1">{formatCurrency(data.meta.total_amount)}</p>
-          </div>
-          {data?.meta?.by_category?.slice(0, 3).map((c) => (
-            <div key={c.category} className="rounded-xl border bg-card p-4">
-              <p className="text-xs text-muted-foreground">{EXPENSE_CATEGORIES.find((ec) => ec.value === c.category)?.label ?? c.category}</p>
-              <p className="text-xl font-bold mt-1">{formatCurrency(c.amount)}</p>
-            </div>
-          ))}
+      {data?.data?.length > 0 && (
+        <div className="rounded-xl border bg-card p-4">
+          <p className="text-xs text-muted-foreground">
+            Showing {data.data.length} expense{data.data.length !== 1 ? "s" : ""}
+            {data.meta?.total ? ` of ${data.meta.total} total` : ""}
+          </p>
         </div>
       )}
 

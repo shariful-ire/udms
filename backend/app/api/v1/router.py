@@ -8,8 +8,10 @@ from app.api.v1.endpoints.dining import (
     meals_router,
     requests_router,
     expenses_router,
+    earnings_router,
     reports_router,
     audit_router,
+    dashboard_router,
 )
 from app.api.v1.endpoints.profile import profile_router, settings_router
 
@@ -24,5 +26,7 @@ api_v1_router.include_router(requests_router)
 api_v1_router.include_router(expenses_router)
 api_v1_router.include_router(reports_router)
 api_v1_router.include_router(audit_router)
+api_v1_router.include_router(earnings_router)
+api_v1_router.include_router(dashboard_router)
 api_v1_router.include_router(profile_router)
 api_v1_router.include_router(settings_router)

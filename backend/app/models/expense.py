@@ -163,6 +163,35 @@ class Payment(Base):
         return f"<Payment {self.amount} {self.status}>"
 
 
+class Earning(Base):
+    __tablename__ = "earnings"
+
+    id: Mapped[str] = mapped_column(
+        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
+    description: Mapped[str] = mapped_column(String(200), nullable=False)
+    category: Mapped[str] = mapped_column(
+        Enum("MEAL_PAYMENT", "DEPOSIT", "GRANT", "OTHER", name="earning_category"),
+        nullable=False,
+        index=True,
+    )
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    earning_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_by: Mapped[str] = mapped_column(
+        String(36), ForeignKey("users.id"), nullable=False, index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=func.now(), onupdate=func.now()
+    )
+
+    created_by_user: Mapped["User"] = relationship("User", foreign_keys=[created_by])
+
+    def __repr__(self) -> str:
+        return f"<Earning {self.description} {self.amount}>"
+
+
 class AuditLog(Base):
     __tablename__ = "audit_logs"
 

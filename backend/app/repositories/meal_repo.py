@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.meal import DailyMenu, MealSchedule, MenuItem, StudentMeal
-from app.models.expense import AuditLog, Expense, MealRequest, Payment
+from app.models.expense import AuditLog, Earning, Expense, MealRequest, Payment
 from app.repositories.base import BaseRepository
 
 
@@ -271,6 +271,10 @@ class ExpenseRepository(BaseRepository[Expense]):
         ).scalars().all()
         return list(items), total
 
+    async def sum_all(self) -> Decimal:
+        r = await self.db.execute(select(func.sum(Expense.amount)))
+        return r.scalar() or Decimal("0.00")
+
     async def sum_in_range(self, start: date, end: date) -> Decimal:
         r = await self.db.execute(
             select(func.sum(Expense.amount)).where(
@@ -295,6 +299,51 @@ class ExpenseRepository(BaseRepository[Expense]):
             .order_by(Expense.expense_date)
         )
         return [{"date": str(row[0]), "total": float(row[1] or 0)} for row in r.all()]
+
+
+# ─── Earning Repository ──────────────────────────────────────────────────────
+class EarningRepository(BaseRepository[Earning]):
+    def __init__(self, db: AsyncSession):
+        super().__init__(Earning, db)
+
+    async def get_paginated(
+        self, *, page: int = 1, per_page: int = 20,
+        category: Optional[str] = None,
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None,
+    ) -> Tuple[List[Earning], int]:
+        conditions = []
+        if category:
+            conditions.append(Earning.category == category)
+        if start_date:
+            conditions.append(Earning.earning_date >= start_date)
+        if end_date:
+            conditions.append(Earning.earning_date <= end_date)
+
+        q = select(Earning)
+        cq = select(func.count()).select_from(Earning)
+        if conditions:
+            q = q.where(and_(*conditions))
+            cq = cq.where(and_(*conditions))
+
+        total = (await self.db.execute(cq)).scalar() or 0
+        offset = (page - 1) * per_page
+        items = (
+            await self.db.execute(q.order_by(Earning.earning_date.desc()).offset(offset).limit(per_page))
+        ).scalars().all()
+        return list(items), total
+
+    async def sum_in_range(self, start: date, end: date) -> Decimal:
+        r = await self.db.execute(
+            select(func.sum(Earning.amount)).where(
+                and_(Earning.earning_date >= start, Earning.earning_date <= end)
+            )
+        )
+        return r.scalar() or Decimal("0.00")
+
+    async def sum_all(self) -> Decimal:
+        r = await self.db.execute(select(func.sum(Earning.amount)))
+        return r.scalar() or Decimal("0.00")
 
 
 # ─── Audit Repository ─────────────────────────────────────────────────────────

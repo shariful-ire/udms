@@ -110,6 +110,20 @@ export const EXPENSE_CATEGORY_COLORS = {
   MISCELLANEOUS: "#94a3b8",
 };
 
+export const EARNING_CATEGORIES = [
+  { value: "MEAL_PAYMENT", label: "Meal Payment",  icon: "🍽", color: "text-green-600" },
+  { value: "DEPOSIT",      label: "Deposit",       icon: "💰", color: "text-blue-600" },
+  { value: "GRANT",        label: "Grant",         icon: "🏛",  color: "text-purple-600" },
+  { value: "OTHER",        label: "Other",         icon: "📋", color: "text-gray-600" },
+];
+
+export const EARNING_CATEGORY_COLORS = {
+  MEAL_PAYMENT: "#22c55e",
+  DEPOSIT:      "#3b82f6",
+  GRANT:        "#8b5cf6",
+  OTHER:        "#94a3b8",
+};
+
 export const REPORT_PERIODS = [
   { value: "daily",   label: "Daily" },
   { value: "weekly",  label: "Weekly" },
@@ -159,6 +173,7 @@ export const NAV_LINKS = {
     { href: "/users",      label: "Users",       icon: "Users" },
     { href: "/dining",     label: "Dining",      icon: "UtensilsCrossed" },
     { href: "/expenses",   label: "Expenses",    icon: "CreditCard" },
+    { href: "/earnings",   label: "Earnings",    icon: "TrendingUp" },
     { href: "/reports",    label: "Reports",     icon: "BarChart3" },
     { href: "/audit",      label: "Audit Logs",  icon: "Shield" },
     { href: "/settings",   label: "Settings",    icon: "Settings" },
@@ -169,6 +184,7 @@ export const NAV_LINKS = {
     { href: "/dining/customers",   label: "Customers",   icon: "UserCheck" },
     { href: "/requests",           label: "Requests",    icon: "ClipboardList" },
     { href: "/expenses",           label: "Expenses",    icon: "CreditCard" },
+    { href: "/earnings",           label: "Earnings",    icon: "TrendingUp" },
     { href: "/reports",            label: "Reports",     icon: "BarChart3" },
   ],
   CUSTOMER: [

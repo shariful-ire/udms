@@ -31,6 +31,9 @@ class Permission(str, Enum):
     MANAGE_EXPENSES = "manage_expenses"
     APPROVE_MEAL_REQUESTS = "approve_meal_requests"
 
+    # Earnings
+    MANAGE_EARNINGS = "manage_earnings"
+
     # Reports (Manager + Provost)
     VIEW_FINANCIAL_REPORTS = "view_financial_reports"
 
@@ -59,12 +62,19 @@ ROLE_PERMISSIONS: dict[UserRole, Set[Permission]] = {
         Permission.VIEW_MENU_AND_SCHEDULES,
         Permission.MANAGE_OWN_PROFILE,
         Permission.VIEW_SETTINGS,
+        Permission.MANAGE_EXPENSES,
+        Permission.MANAGE_EARNINGS,
+        Permission.MANAGE_MEAL_SCHEDULES,
+        Permission.MANAGE_DAILY_MENUS,
+        Permission.MANAGE_CUSTOMERS,
+        Permission.APPROVE_MEAL_REQUESTS,
     },
     UserRole.DINING_MANAGER: {
         Permission.MANAGE_MEAL_SCHEDULES,
         Permission.MANAGE_DAILY_MENUS,
         Permission.MANAGE_CUSTOMERS,
         Permission.MANAGE_EXPENSES,
+        Permission.MANAGE_EARNINGS,
         Permission.APPROVE_MEAL_REQUESTS,
         Permission.VIEW_FINANCIAL_REPORTS,
         Permission.VIEW_MENU_AND_SCHEDULES,

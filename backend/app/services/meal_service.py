@@ -1,4 +1,4 @@
-from datetime import date, datetime, time, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
 from typing import List, Optional, Tuple
 
@@ -13,10 +13,11 @@ from app.core.exceptions import (
     PermissionDeniedException,
     ValidationException,
 )
-from app.models.expense import AuditLog, Expense, MealRequest, Payment
+from app.models.expense import AuditLog, Earning, Expense, MealRequest, Payment
 from app.models.meal import StudentMeal
 from app.repositories.meal_repo import (
     AuditRepository,
+    EarningRepository,
     ExpenseRepository,
     MealRequestRepository,
     MealScheduleRepository,
@@ -26,9 +27,13 @@ from app.repositories.meal_repo import (
 )
 from app.repositories.user_repo import UserRepository
 from app.schemas.meal import (
+    DashboardStats,
+    EarningCreate,
+    EarningUpdate,
     ExpenseCreate,
     ExpenseUpdate,
     MealRequestCreate,
+    MealSessionStats,
     PaymentSubmit,
     ReportData,
     MealBreakdown,
@@ -441,5 +446,113 @@ class ReportService:
                 Decimal(str(expenses_total)) / Decimal(str(total_meals))
                 if total_meals > 0
                 else None
+            ),
+        )
+
+
+# ─── Earning Service ─────────────────────────────────────────────────────────
+class EarningService:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+        self.earning_repo = EarningRepository(db)
+
+    async def create(self, data: EarningCreate, user_id: str) -> Earning:
+        return await self.earning_repo.create({
+            "description": data.description,
+            "category": data.category,
+            "amount": data.amount,
+            "earning_date": data.earning_date,
+            "notes": data.notes,
+            "created_by": user_id,
+        })
+
+    async def update(self, earning_id: str, data: EarningUpdate, user_id: str) -> Earning:
+        earning = await self.earning_repo.get_by_id(earning_id)
+        if not earning:
+            raise NotFoundException("Earning", earning_id)
+        update_data = {k: v for k, v in data.model_dump().items() if v is not None}
+        return await self.earning_repo.update(earning, update_data)
+
+    async def delete(self, earning_id: str) -> bool:
+        earning = await self.earning_repo.get_by_id(earning_id)
+        if not earning:
+            raise NotFoundException("Earning", earning_id)
+        return await self.earning_repo.delete(earning)
+
+    async def get_paginated(self, *, page: int, per_page: int, **filters) -> Tuple[List[Earning], int]:
+        return await self.earning_repo.get_paginated(page=page, per_page=per_page, **filters)
+
+
+# ─── Dashboard Service ───────────────────────────────────────────────────────
+class DashboardService:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+        self.expense_repo = ExpenseRepository(db)
+        self.earning_repo = EarningRepository(db)
+        self.meal_repo = StudentMealRepository(db)
+        self.user_repo = UserRepository(db)
+
+    async def get_stats(self) -> DashboardStats:
+        from sqlalchemy import select, func, and_
+
+        total_expenses = await self.expense_repo.sum_all()
+        total_earnings = await self.earning_repo.sum_all()
+
+        # Active customers count
+        from app.models.user import User
+        r = await self.db.execute(
+            select(func.count()).select_from(User).where(
+                and_(User.role == "CUSTOMER", User.status == "ACTIVE")
+            )
+        )
+        active_customers = r.scalar() or 0
+
+        # Current 7-day session (Mon-Sun of current week)
+        today = date.today()
+        start_of_week = today - timedelta(days=today.weekday())
+        end_of_week = start_of_week + timedelta(days=6)
+
+        # Total possible meals = active_customers × 3 meals/day × 7 days
+        total_possible = active_customers * 3 * 7
+
+        # Consumed meals this session
+        from app.models.meal import StudentMeal
+        r = await self.db.execute(
+            select(func.count()).select_from(StudentMeal).where(
+                and_(
+                    StudentMeal.date >= start_of_week,
+                    StudentMeal.date <= end_of_week,
+                    StudentMeal.status == "ACTIVE",
+                )
+            )
+        )
+        consumed = r.scalar() or 0
+        remaining = max(0, total_possible - consumed)
+
+        # Expenses for the current session
+        session_expenses = await self.expense_repo.sum_in_range(start_of_week, end_of_week)
+
+        per_meal_cost = None
+        remaining_cost = None
+        if consumed > 0:
+            per_meal_cost = Decimal(str(session_expenses)) / Decimal(str(consumed))
+            remaining_cost = per_meal_cost * Decimal(str(remaining))
+        elif total_possible > 0:
+            per_meal_cost = Decimal(str(session_expenses)) / Decimal(str(total_possible))
+            remaining_cost = per_meal_cost * Decimal(str(remaining))
+
+        return DashboardStats(
+            total_expenses=total_expenses,
+            total_earnings=total_earnings,
+            net_balance=total_earnings - total_expenses,
+            active_customers=active_customers,
+            session=MealSessionStats(
+                start_date=start_of_week,
+                end_date=end_of_week,
+                total_possible_meals=total_possible,
+                consumed_meals=consumed,
+                remaining_meals=remaining,
+                per_meal_cost=per_meal_cost,
+                remaining_cost=remaining_cost,
             ),
         )

@@ -10,6 +10,8 @@ from app.models.user import User
 from app.schemas.meal import (
     DailyMenuCreate,
     DailyMenuUpdate,
+    EarningCreate,
+    EarningUpdate,
     MealScheduleUpdate,
     StudentMealCreate,
     MealRequestCreate,
@@ -20,7 +22,7 @@ from app.schemas.meal import (
     ExpenseUpdate,
 )
 from app.services.dining_service import DiningService
-from app.services.meal_service import MealService, MealRequestService, ExpenseService, ReportService
+from app.services.meal_service import MealService, MealRequestService, ExpenseService, EarningService, DashboardService, ReportService
 
 
 # ─── Serialization helpers ────────────────────────────────────────────────────
@@ -92,8 +94,24 @@ def _expense_dict(expense) -> dict:
         "description": expense.description,
         "date": str(expense.expense_date),
         "expense_date": str(expense.expense_date),
+        "created_by": expense.created_by,
         "created_at": expense.created_at.isoformat(),
         "updated_at": expense.updated_at.isoformat(),
+    }
+
+
+def _earning_dict(earning) -> dict:
+    return {
+        "id": earning.id,
+        "description": earning.description,
+        "category": earning.category,
+        "amount": float(earning.amount),
+        "earning_date": str(earning.earning_date),
+        "date": str(earning.earning_date),
+        "notes": earning.notes,
+        "created_by": earning.created_by,
+        "created_at": earning.created_at.isoformat(),
+        "updated_at": earning.updated_at.isoformat(),
     }
 
 
@@ -753,3 +771,115 @@ async def get_audit_log(
     if not log:
         raise NotFoundException("AuditLog", str(log_id))
     return {"success": True, "data": _audit_dict(log)}
+
+
+# ─── Earnings Router ─────────────────────────────────────────────────────────
+earnings_router = APIRouter(prefix="/earnings", tags=["Earnings"])
+
+
+@earnings_router.get("")
+async def list_earnings(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=100),
+    category: Optional[str] = Query(None),
+    start_date: Optional[date] = Query(None),
+    end_date: Optional[date] = Query(None),
+    current_user: User = Depends(require_permission(Permission.MANAGE_EARNINGS)),
+    db: AsyncSession = Depends(get_db),
+):
+    service = EarningService(db)
+    earnings, total = await service.get_paginated(
+        page=page, per_page=per_page, category=category, start_date=start_date, end_date=end_date
+    )
+    from app.schemas.common import paginate
+    return {
+        "success": True,
+        "data": [_earning_dict(e) for e in earnings],
+        "meta": paginate(page, per_page, total).__dict__,
+    }
+
+
+@earnings_router.get("/{earning_id}")
+async def get_earning(
+    earning_id: str,
+    current_user: User = Depends(require_permission(Permission.MANAGE_EARNINGS)),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.repositories.meal_repo import EarningRepository
+    from app.core.exceptions import NotFoundException
+    repo = EarningRepository(db)
+    earning = await repo.get_by_id(earning_id)
+    if not earning:
+        raise NotFoundException("Earning", earning_id)
+    return {"success": True, "data": _earning_dict(earning)}
+
+
+@earnings_router.post("", status_code=201)
+async def create_earning(
+    data: EarningCreate,
+    current_user: User = Depends(require_permission(Permission.MANAGE_EARNINGS)),
+    db: AsyncSession = Depends(get_db),
+):
+    service = EarningService(db)
+    earning = await service.create(data, current_user.id)
+    from app.repositories.meal_repo import AuditRepository
+    audit = AuditRepository(db)
+    await audit.log(user_id=current_user.id, action="EARNING_CREATED", entity_type="Earning", entity_id=earning.id)
+    return {"success": True, "data": _earning_dict(earning)}
+
+
+@earnings_router.put("/{earning_id}")
+async def update_earning(
+    earning_id: str,
+    data: EarningUpdate,
+    current_user: User = Depends(require_permission(Permission.MANAGE_EARNINGS)),
+    db: AsyncSession = Depends(get_db),
+):
+    service = EarningService(db)
+    earning = await service.update(earning_id, data, current_user.id)
+    return {"success": True, "data": _earning_dict(earning)}
+
+
+@earnings_router.delete("/{earning_id}")
+async def delete_earning(
+    earning_id: str,
+    current_user: User = Depends(require_permission(Permission.MANAGE_EARNINGS)),
+    db: AsyncSession = Depends(get_db),
+):
+    service = EarningService(db)
+    await service.delete(earning_id)
+    from app.repositories.meal_repo import AuditRepository
+    audit = AuditRepository(db)
+    await audit.log(user_id=current_user.id, action="EARNING_DELETED", entity_type="Earning", entity_id=earning_id)
+    return {"success": True, "message": "Earning deleted"}
+
+
+# ─── Dashboard Router ────────────────────────────────────────────────────────
+dashboard_router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
+
+
+@dashboard_router.get("/stats")
+async def get_dashboard_stats(
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    service = DashboardService(db)
+    stats = await service.get_stats()
+    return {
+        "success": True,
+        "data": {
+            "total_expenses": float(stats.total_expenses),
+            "total_earnings": float(stats.total_earnings),
+            "net_balance": float(stats.net_balance),
+            "active_customers": stats.active_customers,
+            "session": {
+                "start_date": str(stats.session.start_date),
+                "end_date": str(stats.session.end_date),
+                "total_possible_meals": stats.session.total_possible_meals,
+                "consumed_meals": stats.session.consumed_meals,
+                "remaining_meals": stats.session.remaining_meals,
+                "per_meal_cost": float(stats.session.per_meal_cost) if stats.session.per_meal_cost else 0,
+                "remaining_cost": float(stats.session.remaining_cost) if stats.session.remaining_cost else 0,
+            },
+        },
+    }

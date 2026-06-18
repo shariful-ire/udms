@@ -13,6 +13,7 @@ export default function DashboardLayout({ children }) {
 
   useEffect(() => {
     if (isHydrated && (!user || !accessToken)) {
+      document.cookie = "udms_session=; path=/; max-age=0";
       router.replace("/login");
     }
   }, [isHydrated, user, accessToken, router]);
