@@ -179,6 +179,49 @@ class DashboardStats(BaseModel):
     session: MealSessionStats
 
 
+# ─── Member Payment Schemas ──────────────────────────────────────────────────
+class MemberPaymentCreate(BaseModel):
+    user_id: str
+    year: int = Field(..., ge=2020)
+    month: int = Field(..., ge=1, le=12)
+    amount_due: Decimal = Field(Decimal("0.00"), ge=0)
+
+
+class MemberPaymentResponse(BaseModel):
+    id: str
+    user_id: str
+    year: int
+    month: int
+    amount_due: Decimal
+    amount_paid: Decimal
+    status: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class PaymentProofCreate(BaseModel):
+    member_payment_id: str
+    proof_type: str = Field(..., pattern=r"^(IMAGE|TRANSACTION_ID|TEXT_NOTE)$")
+    proof_value: str = Field(..., min_length=1, max_length=2000)
+
+
+class PaymentProofResponse(BaseModel):
+    id: str
+    member_payment_id: str
+    user_id: str
+    proof_type: str
+    proof_value: str
+    status: str
+    reviewed_by: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    rejection_note: Optional[str] = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 # ─── Meal Request Schemas ─────────────────────────────────────────────────────
 class MealRequestCreate(BaseModel):
     date: date

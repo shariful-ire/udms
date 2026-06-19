@@ -22,7 +22,7 @@ from app.schemas.meal import (
     ExpenseUpdate,
 )
 from app.services.dining_service import DiningService
-from app.services.meal_service import MealService, MealRequestService, ExpenseService, EarningService, DashboardService, ReportService
+from app.services.meal_service import MealService, MealRequestService, ExpenseService, EarningService, MemberPaymentService, DashboardService, ReportService
 
 
 # ─── Serialization helpers ────────────────────────────────────────────────────
@@ -883,3 +883,211 @@ async def get_dashboard_stats(
             },
         },
     }
+
+
+# ─── Serialization helpers for payments ──────────────────────────────────────
+
+def _member_payment_dict(mp) -> dict:
+    try:
+        user = mp.user
+    except Exception:
+        user = None
+    return {
+        "id": mp.id,
+        "user_id": mp.user_id,
+        "year": mp.year,
+        "month": mp.month,
+        "amount_due": float(mp.amount_due),
+        "amount_paid": float(mp.amount_paid),
+        "status": mp.status,
+        "created_at": mp.created_at.isoformat(),
+        "updated_at": mp.updated_at.isoformat(),
+        "user": _user_dict(user),
+    }
+
+
+def _proof_dict(proof) -> dict:
+    try:
+        user = proof.user
+    except Exception:
+        user = None
+    return {
+        "id": proof.id,
+        "member_payment_id": proof.member_payment_id,
+        "user_id": proof.user_id,
+        "proof_type": proof.proof_type,
+        "proof_value": proof.proof_value,
+        "status": proof.status,
+        "reviewed_by": proof.reviewed_by,
+        "reviewed_at": proof.reviewed_at.isoformat() if proof.reviewed_at else None,
+        "rejection_note": proof.rejection_note,
+        "created_at": proof.created_at.isoformat(),
+        "user": _user_dict(user),
+    }
+
+
+# ─── Member Payments Router ─────────────────────────────────────────────────
+member_payments_router = APIRouter(prefix="/member-payments", tags=["Member Payments"])
+
+
+@member_payments_router.get("")
+async def list_member_payments(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(50, ge=1, le=200),
+    status: Optional[str] = Query(None),
+    year: Optional[int] = Query(None),
+    month: Optional[int] = Query(None),
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    service = MemberPaymentService(db)
+    is_manager = current_user.role in ("PROVOST", "DINING_MANAGER")
+    if not is_manager:
+        payments, total = await service.get_paginated(
+            page=page, per_page=per_page, status=status, year=year, month=month
+        )
+        payments = [p for p in payments if p.user_id == current_user.id]
+        total = len(payments)
+    else:
+        payments, total = await service.get_paginated(
+            page=page, per_page=per_page, status=status, year=year, month=month
+        )
+    from app.schemas.common import paginate
+    return {
+        "success": True,
+        "data": [_member_payment_dict(p) for p in payments],
+        "meta": paginate(page, per_page, total).__dict__,
+    }
+
+
+@member_payments_router.get("/summary")
+async def payment_summary(
+    year: int = Query(..., ge=2020),
+    month: int = Query(..., ge=1, le=12),
+    current_user: User = Depends(require_permission(Permission.MANAGE_MEMBER_PAYMENTS)),
+    db: AsyncSession = Depends(get_db),
+):
+    service = MemberPaymentService(db)
+    summary = await service.get_summary(year, month)
+    return {"success": True, "data": summary}
+
+
+@member_payments_router.post("/init", status_code=201)
+async def init_month_payments(
+    year: int = Query(..., ge=2020),
+    month: int = Query(..., ge=1, le=12),
+    amount_due: float = Query(0),
+    current_user: User = Depends(require_permission(Permission.MANAGE_MEMBER_PAYMENTS)),
+    db: AsyncSession = Depends(get_db),
+):
+    from decimal import Decimal
+    service = MemberPaymentService(db)
+    created = await service.init_month_for_active_customers(year, month, Decimal(str(amount_due)))
+    return {"success": True, "message": f"Initialized {created} payment records", "data": {"created": created}}
+
+
+@member_payments_router.patch("/{payment_id}/mark-paid")
+async def mark_payment_paid(
+    payment_id: str,
+    current_user: User = Depends(require_permission(Permission.MANAGE_MEMBER_PAYMENTS)),
+    db: AsyncSession = Depends(get_db),
+):
+    service = MemberPaymentService(db)
+    payment = await service.mark_paid(payment_id)
+    return {"success": True, "data": _member_payment_dict(payment)}
+
+
+@member_payments_router.patch("/{payment_id}/mark-pending")
+async def mark_payment_pending(
+    payment_id: str,
+    current_user: User = Depends(require_permission(Permission.MANAGE_MEMBER_PAYMENTS)),
+    db: AsyncSession = Depends(get_db),
+):
+    service = MemberPaymentService(db)
+    payment = await service.mark_pending(payment_id)
+    return {"success": True, "data": _member_payment_dict(payment)}
+
+
+@member_payments_router.patch("/{payment_id}/toggle-active")
+async def toggle_user_active(
+    payment_id: str,
+    current_user: User = Depends(require_permission(Permission.TOGGLE_USER_STATUS)),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.repositories.user_repo import UserRepository
+    from app.core.exceptions import NotFoundException
+    repo = UserRepository(db)
+    from app.repositories.meal_repo import MemberPaymentRepository
+    mp_repo = MemberPaymentRepository(db)
+    payment = await mp_repo.get_by_id(payment_id)
+    if not payment:
+        raise NotFoundException("MemberPayment", payment_id)
+    user = await repo.get_by_id(payment.user_id)
+    if not user:
+        raise NotFoundException("User", payment.user_id)
+    new_status = "INACTIVE" if user.status == "ACTIVE" else "ACTIVE"
+    await repo.update(user, {"status": new_status})
+    return {"success": True, "message": f"User is now {new_status}", "data": {"status": new_status}}
+
+
+# ─── Payment Proofs Router ──────────────────────────────────────────────────
+payment_proofs_router = APIRouter(prefix="/payment-proofs", tags=["Payment Proofs"])
+
+
+@payment_proofs_router.get("")
+async def list_proofs(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=100),
+    status: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    service = MemberPaymentService(db)
+    is_manager = current_user.role in ("PROVOST", "DINING_MANAGER")
+    user_id = None if is_manager else current_user.id
+    proofs, total = await service.get_proofs(page=page, per_page=per_page, status=status, user_id=user_id)
+    from app.schemas.common import paginate
+    return {
+        "success": True,
+        "data": [_proof_dict(p) for p in proofs],
+        "meta": paginate(page, per_page, total).__dict__,
+    }
+
+
+@payment_proofs_router.post("", status_code=201)
+async def submit_proof(
+    data: dict,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    service = MemberPaymentService(db)
+    proof = await service.submit_proof(
+        user_id=current_user.id,
+        member_payment_id=data["member_payment_id"],
+        proof_type=data["proof_type"],
+        proof_value=data["proof_value"],
+    )
+    return {"success": True, "data": _proof_dict(proof)}
+
+
+@payment_proofs_router.patch("/{proof_id}/approve")
+async def approve_proof(
+    proof_id: str,
+    current_user: User = Depends(require_permission(Permission.MANAGE_MEMBER_PAYMENTS)),
+    db: AsyncSession = Depends(get_db),
+):
+    service = MemberPaymentService(db)
+    proof = await service.approve_proof(proof_id, current_user.id)
+    return {"success": True, "data": _proof_dict(proof)}
+
+
+@payment_proofs_router.patch("/{proof_id}/reject")
+async def reject_proof(
+    proof_id: str,
+    data: dict = {},
+    current_user: User = Depends(require_permission(Permission.MANAGE_MEMBER_PAYMENTS)),
+    db: AsyncSession = Depends(get_db),
+):
+    service = MemberPaymentService(db)
+    proof = await service.reject_proof(proof_id, current_user.id, data.get("rejection_note"))
+    return {"success": True, "data": _proof_dict(proof)}

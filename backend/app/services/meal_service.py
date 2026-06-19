@@ -13,7 +13,7 @@ from app.core.exceptions import (
     PermissionDeniedException,
     ValidationException,
 )
-from app.models.expense import AuditLog, Earning, Expense, MealRequest, Payment
+from app.models.expense import AuditLog, Earning, Expense, MealRequest, MemberPayment, Payment, PaymentProof
 from app.models.meal import StudentMeal
 from app.repositories.meal_repo import (
     AuditRepository,
@@ -21,7 +21,9 @@ from app.repositories.meal_repo import (
     ExpenseRepository,
     MealRequestRepository,
     MealScheduleRepository,
+    MemberPaymentRepository,
     DailyMenuRepository,
+    PaymentProofRepository,
     PaymentRepository,
     StudentMealRepository,
 )
@@ -556,3 +558,116 @@ class DashboardService:
                 remaining_cost=remaining_cost,
             ),
         )
+
+
+# ─── Member Payment Service ──────────────────────────────────────────────────
+class MemberPaymentService:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+        self.payment_repo = MemberPaymentRepository(db)
+        self.proof_repo = PaymentProofRepository(db)
+
+    async def get_or_create(self, user_id: str, year: int, month: int, amount_due: Decimal = Decimal("0.00")) -> MemberPayment:
+        existing = await self.payment_repo.get_by_user_month(user_id, year, month)
+        if existing:
+            return existing
+        return await self.payment_repo.create({
+            "user_id": user_id,
+            "year": year,
+            "month": month,
+            "amount_due": amount_due,
+            "amount_paid": Decimal("0.00"),
+            "status": "PENDING",
+        })
+
+    async def mark_paid(self, payment_id: str) -> MemberPayment:
+        payment = await self.payment_repo.get_by_id(payment_id)
+        if not payment:
+            raise NotFoundException("MemberPayment", payment_id)
+        return await self.payment_repo.update(payment, {"status": "PAID"})
+
+    async def mark_pending(self, payment_id: str) -> MemberPayment:
+        payment = await self.payment_repo.get_by_id(payment_id)
+        if not payment:
+            raise NotFoundException("MemberPayment", payment_id)
+        return await self.payment_repo.update(payment, {"status": "PENDING"})
+
+    async def get_paginated(self, **kwargs) -> Tuple[List[MemberPayment], int]:
+        return await self.payment_repo.get_paginated(**kwargs)
+
+    async def get_summary(self, year: int, month: int) -> dict:
+        counts = await self.payment_repo.count_by_status(year, month)
+        proof_counts = {}
+        from sqlalchemy import select, func as sqlfunc, and_ as sqland
+        for ps in ["SUBMITTED", "APPROVED", "REJECTED"]:
+            r = await self.db.execute(
+                select(sqlfunc.count()).select_from(PaymentProof).where(PaymentProof.status == ps)
+            )
+            proof_counts[ps.lower()] = r.scalar() or 0
+        return {
+            "paid": counts.get("PAID", 0),
+            "pending": counts.get("PENDING", 0),
+            "proofs_submitted": proof_counts.get("submitted", 0),
+            "proofs_approved": proof_counts.get("approved", 0),
+            "proofs_rejected": proof_counts.get("rejected", 0),
+        }
+
+    async def submit_proof(self, user_id: str, member_payment_id: str, proof_type: str, proof_value: str) -> PaymentProof:
+        payment = await self.payment_repo.get_by_id(member_payment_id)
+        if not payment:
+            raise NotFoundException("MemberPayment", member_payment_id)
+        if payment.user_id != user_id:
+            raise PermissionDeniedException("You can only submit proofs for your own payments")
+        return await self.proof_repo.create({
+            "member_payment_id": member_payment_id,
+            "user_id": user_id,
+            "proof_type": proof_type,
+            "proof_value": proof_value,
+            "status": "SUBMITTED",
+        })
+
+    async def approve_proof(self, proof_id: str, reviewer_id: str) -> PaymentProof:
+        proof = await self.proof_repo.get_by_id(proof_id)
+        if not proof:
+            raise NotFoundException("PaymentProof", proof_id)
+        updated = await self.proof_repo.update(proof, {
+            "status": "APPROVED",
+            "reviewed_by": reviewer_id,
+            "reviewed_at": datetime.now(timezone.utc),
+        })
+        payment = await self.payment_repo.get_by_id(proof.member_payment_id)
+        if payment:
+            await self.payment_repo.update(payment, {"status": "PAID"})
+        return updated
+
+    async def reject_proof(self, proof_id: str, reviewer_id: str, note: str = None) -> PaymentProof:
+        proof = await self.proof_repo.get_by_id(proof_id)
+        if not proof:
+            raise NotFoundException("PaymentProof", proof_id)
+        return await self.proof_repo.update(proof, {
+            "status": "REJECTED",
+            "reviewed_by": reviewer_id,
+            "reviewed_at": datetime.now(timezone.utc),
+            "rejection_note": note,
+        })
+
+    async def get_proofs(self, **kwargs) -> Tuple[List[PaymentProof], int]:
+        return await self.proof_repo.get_paginated(**kwargs)
+
+    async def init_month_for_active_customers(self, year: int, month: int, amount_due: Decimal = Decimal("0.00")) -> int:
+        from app.models.user import User
+        from sqlalchemy import select, and_
+        r = await self.db.execute(
+            select(User.id).where(and_(User.role == "CUSTOMER", User.status == "ACTIVE"))
+        )
+        user_ids = [row[0] for row in r.all()]
+        created = 0
+        for uid in user_ids:
+            existing = await self.payment_repo.get_by_user_month(uid, year, month)
+            if not existing:
+                await self.payment_repo.create({
+                    "user_id": uid, "year": year, "month": month,
+                    "amount_due": amount_due, "amount_paid": Decimal("0.00"), "status": "PENDING",
+                })
+                created += 1
+        return created

@@ -170,7 +170,7 @@ async def delete_user(
     return {"success": True, "message": "User deleted"}
 
 
-@router.patch("/{user_id}/suspend", dependencies=[Depends(require_roles(UserRole.PROVOST))])
+@router.patch("/{user_id}/suspend", dependencies=[Depends(require_roles(UserRole.PROVOST, UserRole.DINING_MANAGER))])
 async def suspend_user(
     user_id: str,
     current_user: User = Depends(get_current_active_user),
@@ -188,7 +188,7 @@ async def suspend_user(
     return {"success": True, "message": "User suspended"}
 
 
-@router.patch("/{user_id}/activate", dependencies=[Depends(require_roles(UserRole.PROVOST))])
+@router.patch("/{user_id}/activate", dependencies=[Depends(require_roles(UserRole.PROVOST, UserRole.DINING_MANAGER))])
 async def activate_user(
     user_id: str,
     current_user: User = Depends(get_current_active_user),

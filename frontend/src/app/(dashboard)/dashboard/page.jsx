@@ -50,12 +50,14 @@ function ManagerDashboard() {
     {
       title: "Total Users",
       value: userStats?.total_users ?? 0,
+      href: "/users",
       icon: <Users className="h-5 w-5" />,
       iconColor: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
     },
     {
       title: "Active Customers",
       value: dashStats?.active_customers ?? userStats?.total_customers ?? 0,
+      href: "/payments",
       icon: <UserCheck className="h-5 w-5" />,
       iconColor: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
     },
@@ -63,6 +65,7 @@ function ManagerDashboard() {
       title: "Total Earnings",
       formatted: formatCurrency(totalEarnings),
       value: Math.round(Number(totalEarnings)),
+      href: "/earnings",
       icon: <TrendingUp className="h-5 w-5" />,
       iconColor: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
     },
@@ -70,6 +73,7 @@ function ManagerDashboard() {
       title: "Total Expenses",
       formatted: formatCurrency(totalExpenses),
       value: Math.round(Number(totalExpenses)),
+      href: "/expenses",
       icon: <CreditCard className="h-5 w-5" />,
       iconColor: "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
     },
@@ -104,7 +108,7 @@ function ManagerDashboard() {
       {/* Net Balance + Meal Session */}
       {(dashStats || report) && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border bg-card p-5">
+          <Link href="/reports" className="rounded-xl border bg-card p-5 hover:border-primary/30 transition-colors block">
             <div className="flex items-center gap-2 mb-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
                 <Wallet className="h-4 w-4" />
@@ -115,9 +119,9 @@ function ManagerDashboard() {
               {formatCurrency(netBalance)}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">earnings - expenses</p>
-          </div>
+          </Link>
 
-          <div className="rounded-xl border bg-card p-5">
+          <Link href="/reports" className="rounded-xl border bg-card p-5 hover:border-primary/30 transition-colors block">
             <div className="flex items-center gap-2 mb-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
                 <Calculator className="h-4 w-4" />
@@ -128,9 +132,9 @@ function ManagerDashboard() {
               {formatCurrency(session?.per_meal_cost ?? report?.per_meal_cost ?? 0)}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">this week&apos;s session</p>
-          </div>
+          </Link>
 
-          <div className="rounded-xl border bg-card p-5">
+          <Link href="/meals" className="rounded-xl border bg-card p-5 hover:border-primary/30 transition-colors block">
             <div className="flex items-center gap-2 mb-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400">
                 <UtensilsCrossed className="h-4 w-4" />
@@ -148,9 +152,9 @@ function ManagerDashboard() {
             <p className="text-xs text-muted-foreground mt-0.5">
               {session ? `${session.remaining_meals} remaining` : "this month"}
             </p>
-          </div>
+          </Link>
 
-          <div className="rounded-xl border bg-card p-5">
+          <Link href="/reports" className="rounded-xl border bg-card p-5 hover:border-primary/30 transition-colors block">
             <div className="flex items-center gap-2 mb-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400">
                 <Calendar className="h-4 w-4" />
@@ -163,7 +167,7 @@ function ManagerDashboard() {
             <p className="text-xs text-muted-foreground mt-0.5">
               {session ? `${session.start_date} — ${session.end_date}` : "current period"}
             </p>
-          </div>
+          </Link>
         </div>
       )}
 

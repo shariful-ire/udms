@@ -192,6 +192,81 @@ class Earning(Base):
         return f"<Earning {self.description} {self.amount}>"
 
 
+class MemberPayment(Base):
+    __tablename__ = "member_payments"
+
+    id: Mapped[str] = mapped_column(
+        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
+    user_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    year: Mapped[int] = mapped_column(nullable=False)
+    month: Mapped[int] = mapped_column(nullable=False)
+    amount_due: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, default=0)
+    amount_paid: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, default=0)
+    status: Mapped[str] = mapped_column(
+        Enum("PAID", "PENDING", name="member_payment_status"),
+        nullable=False,
+        default="PENDING",
+        index=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=func.now(), onupdate=func.now()
+    )
+
+    user: Mapped["User"] = relationship("User", foreign_keys=[user_id])
+    proofs: Mapped[list["PaymentProof"]] = relationship(
+        "PaymentProof", back_populates="member_payment", cascade="all, delete-orphan"
+    )
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "year", "month", name="uq_user_year_month"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<MemberPayment user={self.user_id} {self.year}-{self.month} {self.status}>"
+
+
+class PaymentProof(Base):
+    __tablename__ = "payment_proofs"
+
+    id: Mapped[str] = mapped_column(
+        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
+    member_payment_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("member_payments.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    user_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("users.id"), nullable=False, index=True
+    )
+    proof_type: Mapped[str] = mapped_column(
+        Enum("IMAGE", "TRANSACTION_ID", "TEXT_NOTE", name="proof_type_enum"),
+        nullable=False,
+    )
+    proof_value: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(
+        Enum("SUBMITTED", "APPROVED", "REJECTED", name="proof_status"),
+        nullable=False,
+        default="SUBMITTED",
+        index=True,
+    )
+    reviewed_by: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("users.id"), nullable=True
+    )
+    reviewed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    rejection_note: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now())
+
+    member_payment: Mapped["MemberPayment"] = relationship("MemberPayment", back_populates="proofs")
+    user: Mapped["User"] = relationship("User", foreign_keys=[user_id])
+    reviewer: Mapped[Optional["User"]] = relationship("User", foreign_keys=[reviewed_by])
+
+    def __repr__(self) -> str:
+        return f"<PaymentProof {self.proof_type} {self.status}>"
+
+
 class AuditLog(Base):
     __tablename__ = "audit_logs"
 

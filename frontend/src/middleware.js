@@ -27,6 +27,7 @@ const AUTH_PATHS = [
   "/requests",
   "/expenses",
   "/earnings",
+  "/payments",
   "/reports",
   "/audit",
   "/settings",

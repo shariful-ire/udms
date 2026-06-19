@@ -56,6 +56,10 @@ export default function EarningsPage() {
       key: "actions", label: "",
       render: (e) => (
         <div className="flex gap-1 justify-end">
+          <Link href={`/earnings/${e.id}`}
+            className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent transition-colors">
+            <Pencil className="h-4 w-4" />
+          </Link>
           <button onClick={() => setDeleteId(e.id)}
             className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors">
             <Trash2 className="h-4 w-4" />

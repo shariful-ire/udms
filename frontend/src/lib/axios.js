@@ -239,4 +239,20 @@ export const dashboardApi = {
   stats: () => api.get("/dashboard/stats"),
 };
 
+export const memberPaymentsApi = {
+  list: (params) => api.get("/member-payments", { params }),
+  summary: (params) => api.get("/member-payments/summary", { params }),
+  initMonth: (params) => api.post(`/member-payments/init?year=${params.year}&month=${params.month}&amount_due=${params.amount_due || 0}`),
+  markPaid: (id) => api.patch(`/member-payments/${id}/mark-paid`),
+  markPending: (id) => api.patch(`/member-payments/${id}/mark-pending`),
+  toggleActive: (id) => api.patch(`/member-payments/${id}/toggle-active`),
+};
+
+export const paymentProofsApi = {
+  list: (params) => api.get("/payment-proofs", { params }),
+  submit: (data) => api.post("/payment-proofs", data),
+  approve: (id) => api.patch(`/payment-proofs/${id}/approve`),
+  reject: (id, data) => api.patch(`/payment-proofs/${id}/reject`, data),
+};
+
 export default api;

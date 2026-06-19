@@ -114,6 +114,17 @@ export const queryKeys = {
     stats: ["dashboard", "stats"],
   },
 
+  // Member Payments
+  memberPayments: {
+    list: (params) => ["member-payments", "list", params],
+    summary: (params) => ["member-payments", "summary", params],
+  },
+
+  // Payment Proofs
+  paymentProofs: {
+    list: (params) => ["payment-proofs", "list", params],
+  },
+
   // Settings
   settings: ["settings"],
 };

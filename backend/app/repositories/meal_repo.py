@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.meal import DailyMenu, MealSchedule, MenuItem, StudentMeal
-from app.models.expense import AuditLog, Earning, Expense, MealRequest, Payment
+from app.models.expense import AuditLog, Earning, Expense, MealRequest, MemberPayment, Payment, PaymentProof
 from app.repositories.base import BaseRepository
 
 
@@ -344,6 +344,92 @@ class EarningRepository(BaseRepository[Earning]):
     async def sum_all(self) -> Decimal:
         r = await self.db.execute(select(func.sum(Earning.amount)))
         return r.scalar() or Decimal("0.00")
+
+
+# ─── Member Payment Repository ───────────────────────────────────────────────
+class MemberPaymentRepository(BaseRepository[MemberPayment]):
+    def __init__(self, db: AsyncSession):
+        super().__init__(MemberPayment, db)
+
+    async def get_by_user_month(self, user_id: str, year: int, month: int) -> Optional[MemberPayment]:
+        r = await self.db.execute(
+            select(MemberPayment).where(
+                and_(MemberPayment.user_id == user_id, MemberPayment.year == year, MemberPayment.month == month)
+            )
+        )
+        return r.scalars().first()
+
+    async def get_paginated(
+        self, *, page: int = 1, per_page: int = 50,
+        status: Optional[str] = None, year: Optional[int] = None, month: Optional[int] = None,
+    ) -> Tuple[List[MemberPayment], int]:
+        conditions = []
+        if status:
+            conditions.append(MemberPayment.status == status)
+        if year:
+            conditions.append(MemberPayment.year == year)
+        if month:
+            conditions.append(MemberPayment.month == month)
+
+        q = select(MemberPayment).options(selectinload(MemberPayment.user))
+        cq = select(func.count()).select_from(MemberPayment)
+        if conditions:
+            q = q.where(and_(*conditions))
+            cq = cq.where(and_(*conditions))
+
+        total = (await self.db.execute(cq)).scalar() or 0
+        offset = (page - 1) * per_page
+        items = (await self.db.execute(
+            q.order_by(MemberPayment.year.desc(), MemberPayment.month.desc()).offset(offset).limit(per_page)
+        )).scalars().all()
+        return list(items), total
+
+    async def count_by_status(self, year: int, month: int) -> dict:
+        r = await self.db.execute(
+            select(MemberPayment.status, func.count(MemberPayment.id)).where(
+                and_(MemberPayment.year == year, MemberPayment.month == month)
+            ).group_by(MemberPayment.status)
+        )
+        return {row[0]: row[1] for row in r.all()}
+
+
+# ─── Payment Proof Repository ────────────────────────────────────────────────
+class PaymentProofRepository(BaseRepository[PaymentProof]):
+    def __init__(self, db: AsyncSession):
+        super().__init__(PaymentProof, db)
+
+    async def get_by_payment_id(self, member_payment_id: str) -> List[PaymentProof]:
+        r = await self.db.execute(
+            select(PaymentProof).where(PaymentProof.member_payment_id == member_payment_id)
+            .order_by(PaymentProof.created_at.desc())
+        )
+        return list(r.scalars().all())
+
+    async def get_paginated(
+        self, *, page: int = 1, per_page: int = 20,
+        status: Optional[str] = None, user_id: Optional[str] = None,
+    ) -> Tuple[List[PaymentProof], int]:
+        conditions = []
+        if status:
+            conditions.append(PaymentProof.status == status)
+        if user_id:
+            conditions.append(PaymentProof.user_id == user_id)
+
+        q = select(PaymentProof).options(
+            selectinload(PaymentProof.user),
+            selectinload(PaymentProof.member_payment),
+        )
+        cq = select(func.count()).select_from(PaymentProof)
+        if conditions:
+            q = q.where(and_(*conditions))
+            cq = cq.where(and_(*conditions))
+
+        total = (await self.db.execute(cq)).scalar() or 0
+        offset = (page - 1) * per_page
+        items = (await self.db.execute(
+            q.order_by(PaymentProof.created_at.desc()).offset(offset).limit(per_page)
+        )).scalars().all()
+        return list(items), total
 
 
 # ─── Audit Repository ─────────────────────────────────────────────────────────

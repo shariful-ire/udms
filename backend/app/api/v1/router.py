@@ -9,6 +9,8 @@ from app.api.v1.endpoints.dining import (
     requests_router,
     expenses_router,
     earnings_router,
+    member_payments_router,
+    payment_proofs_router,
     reports_router,
     audit_router,
     dashboard_router,
@@ -27,6 +29,8 @@ api_v1_router.include_router(expenses_router)
 api_v1_router.include_router(reports_router)
 api_v1_router.include_router(audit_router)
 api_v1_router.include_router(earnings_router)
+api_v1_router.include_router(member_payments_router)
+api_v1_router.include_router(payment_proofs_router)
 api_v1_router.include_router(dashboard_router)
 api_v1_router.include_router(profile_router)
 api_v1_router.include_router(settings_router)

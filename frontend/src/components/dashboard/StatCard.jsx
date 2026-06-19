@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -52,6 +53,7 @@ export function StatCard({
   iconColor = "bg-primary/10 text-primary",
   trend,
   trendLabel = "vs last period",
+  href,
   className,
 }) {
   const animated = useCountUp(typeof value === "number" ? value : 0);
@@ -65,42 +67,46 @@ export function StatCard({
       ? "text-red-600 dark:text-red-400"
       : "text-muted-foreground";
 
-  return (
-    <div
-      className={cn(
-        "rounded-xl border bg-card p-6 shadow-sm hover:shadow-md transition-shadow",
-        className
-      )}
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1 min-w-0">
-          <p className="text-sm font-medium text-muted-foreground truncate">{title}</p>
-          <p className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">
-            {formatted ?? animated.toLocaleString()}
-          </p>
+  const cardClass = cn(
+    "rounded-xl border bg-card p-6 shadow-sm hover:shadow-md transition-shadow block",
+    href && "cursor-pointer hover:border-primary/30",
+    className
+  );
 
-          {trend !== undefined && (
-            <div className={cn("flex items-center gap-1 text-xs", trendColor)}>
-              <TrendIcon className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-medium">{Math.abs(trend)}%</span>
-              <span className="text-muted-foreground">{trendLabel}</span>
-            </div>
-          )}
-        </div>
+  const content = (
+    <div className="flex items-start justify-between gap-4">
+      <div className="space-y-1 min-w-0">
+        <p className="text-sm font-medium text-muted-foreground truncate">{title}</p>
+        <p className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">
+          {formatted ?? animated.toLocaleString()}
+        </p>
 
-        {icon && (
-          <div
-            className={cn(
-              "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
-              iconColor
-            )}
-          >
-            {icon}
+        {trend !== undefined && (
+          <div className={cn("flex items-center gap-1 text-xs", trendColor)}>
+            <TrendIcon className="h-3.5 w-3.5 shrink-0" />
+            <span className="font-medium">{Math.abs(trend)}%</span>
+            <span className="text-muted-foreground">{trendLabel}</span>
           </div>
         )}
       </div>
+
+      {icon && (
+        <div
+          className={cn(
+            "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+            iconColor
+          )}
+        >
+          {icon}
+        </div>
+      )}
     </div>
   );
+
+  if (href) {
+    return <Link href={href} className={cardClass}>{content}</Link>;
+  }
+  return <div className={cardClass}>{content}</div>;
 }
 
 export default StatCard;

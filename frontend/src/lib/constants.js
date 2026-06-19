@@ -172,6 +172,7 @@ export const NAV_LINKS = {
     { href: "/dashboard",  label: "Dashboard",   icon: "LayoutDashboard" },
     { href: "/users",      label: "Users",       icon: "Users" },
     { href: "/dining",     label: "Dining",      icon: "UtensilsCrossed" },
+    { href: "/payments",   label: "Payments",    icon: "Receipt" },
     { href: "/expenses",   label: "Expenses",    icon: "CreditCard" },
     { href: "/earnings",   label: "Earnings",    icon: "TrendingUp" },
     { href: "/reports",    label: "Reports",     icon: "BarChart3" },
@@ -182,6 +183,7 @@ export const NAV_LINKS = {
     { href: "/dashboard",          label: "Dashboard",   icon: "LayoutDashboard" },
     { href: "/dining",             label: "Dining",      icon: "UtensilsCrossed" },
     { href: "/dining/customers",   label: "Customers",   icon: "UserCheck" },
+    { href: "/payments",           label: "Payments",    icon: "Receipt" },
     { href: "/requests",           label: "Requests",    icon: "ClipboardList" },
     { href: "/expenses",           label: "Expenses",    icon: "CreditCard" },
     { href: "/earnings",           label: "Earnings",    icon: "TrendingUp" },
@@ -192,6 +194,7 @@ export const NAV_LINKS = {
     { href: "/meals",          label: "My Meals",     icon: "UtensilsCrossed" },
     { href: "/meals/history",  label: "Meal History", icon: "CalendarDays" },
     { href: "/meals/summary",  label: "Summary",      icon: "PieChart" },
+    { href: "/payments",       label: "My Payments",  icon: "Receipt" },
   ],
   NON_CUSTOMER: [
     { href: "/dashboard",  label: "Dashboard",  icon: "LayoutDashboard" },

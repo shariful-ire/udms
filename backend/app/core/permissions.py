@@ -34,6 +34,11 @@ class Permission(str, Enum):
     # Earnings
     MANAGE_EARNINGS = "manage_earnings"
 
+    # Member Payments
+    MANAGE_MEMBER_PAYMENTS = "manage_member_payments"
+    SUBMIT_PAYMENT_PROOF = "submit_payment_proof"
+    TOGGLE_USER_STATUS = "toggle_user_status"
+
     # Reports (Manager + Provost)
     VIEW_FINANCIAL_REPORTS = "view_financial_reports"
 
@@ -67,6 +72,8 @@ ROLE_PERMISSIONS: dict[UserRole, Set[Permission]] = {
         Permission.MANAGE_MEAL_SCHEDULES,
         Permission.MANAGE_DAILY_MENUS,
         Permission.MANAGE_CUSTOMERS,
+        Permission.MANAGE_MEMBER_PAYMENTS,
+        Permission.TOGGLE_USER_STATUS,
         Permission.APPROVE_MEAL_REQUESTS,
     },
     UserRole.DINING_MANAGER: {
@@ -75,6 +82,8 @@ ROLE_PERMISSIONS: dict[UserRole, Set[Permission]] = {
         Permission.MANAGE_CUSTOMERS,
         Permission.MANAGE_EXPENSES,
         Permission.MANAGE_EARNINGS,
+        Permission.MANAGE_MEMBER_PAYMENTS,
+        Permission.TOGGLE_USER_STATUS,
         Permission.APPROVE_MEAL_REQUESTS,
         Permission.VIEW_FINANCIAL_REPORTS,
         Permission.VIEW_MENU_AND_SCHEDULES,
@@ -82,6 +91,7 @@ ROLE_PERMISSIONS: dict[UserRole, Set[Permission]] = {
         Permission.VIEW_SETTINGS,
     },
     UserRole.CUSTOMER: {
+        Permission.SUBMIT_PAYMENT_PROOF,
         Permission.ADD_PERSONAL_MEAL,
         Permission.CANCEL_PERSONAL_MEAL,
         Permission.VIEW_OWN_MEAL_HISTORY,
