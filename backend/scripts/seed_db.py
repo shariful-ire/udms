@@ -69,8 +69,8 @@ def make_user(
     )
 
 
-DEPARTMENTS = ["CSE", "EEE", "ME", "CE", "BBA", "English", "Physics", "Chemistry", "Math", "Law"]
-HALLS = ["Shaheed Hall", "Bangabandhu Hall", "Shahjalal Hall", "Rokeya Hall", "Sobhanbag Hall"]
+DEPARTMENTS = ["IRE", "CySE", "DSE", "EdTE", "SE"]
+HALLS = ["UFTB Boys Hall", "UFTB Girls Hall-1", "UFTB Girls Hall-2"]
 FOOD_ITEMS = {
     "BREAKFAST": [
         ("Paratha", "2 pieces"), ("Egg Fry", "1 piece"), ("Tea", "1 cup"),
@@ -112,7 +112,7 @@ async def clear_existing(db: AsyncSession) -> None:
     for table in [
         "audit_logs", "system_settings", "payments", "meal_requests",
         "student_meals", "menu_items", "daily_menus", "meal_schedules",
-        "refresh_tokens", "users",
+        "refresh_tokens", "earnings", "expenses", "users",
     ]:
         try:
             await db.execute(text(f"TRUNCATE TABLE {table}"))
@@ -138,7 +138,7 @@ async def seed_users(db: AsyncSession) -> dict[str, User]:
         role="PROVOST",
         department="Administration",
         batch="N/A",
-        hall_name="Administration Block",
+        hall_name="UFTB Boys Hall",
     )
     db.add(provost)
     users["provost"] = provost
@@ -150,37 +150,37 @@ async def seed_users(db: AsyncSession) -> dict[str, User]:
         email="manager@university.edu",
         password="Manager@1234!",
         role="DINING_MANAGER",
-        department="Dining Services",
+        department="IRE",
         batch="N/A",
-        hall_name="Dining Hall",
+        hall_name="UFTB Boys Hall",
     )
     db.add(manager)
     users["manager"] = manager
 
     customer = make_user(
-        student_id="CSE-2001-001",
+        student_id="IRE-2001-001",
         username="student_customer",
         full_name="Arif Hasan",
         email="customer@university.edu",
         password="Student@1234!",
         role="CUSTOMER",
-        department="CSE",
+        department="IRE",
         batch="2020",
-        hall_name="Shaheed Hall",
+        hall_name="UFTB Boys Hall",
     )
     db.add(customer)
     users["customer"] = customer
 
     normal = make_user(
-        student_id="EEE-2001-002",
+        student_id="CySE-2001-002",
         username="student_normal",
         full_name="Nadia Islam",
         email="normal@university.edu",
         password="Student@1234!",
         role="NON_CUSTOMER",
-        department="EEE",
+        department="CySE",
         batch="2021",
-        hall_name="Rokeya Hall",
+        hall_name="UFTB Girls Hall-1",
     )
     db.add(normal)
     users["normal"] = normal
@@ -284,28 +284,8 @@ async def seed_meal_records(db: AsyncSession, users: dict) -> None:
 
 
 async def seed_expenses(db: AsyncSession, manager_id: str) -> None:
-    """Create 30 days of expense records."""
-    print("  Seeding expenses...")
-    today = date.today()
-    count = 0
-    for delta in range(-30, 1):
-        d = today + timedelta(days=delta)
-        num_expenses = random.randint(1, 3)
-        for _ in range(num_expenses):
-            name, category, description = random.choice(EXPENSE_NAMES)
-            amount = Decimal(str(round(random.uniform(500, 15000), 2)))
-            db.add(Expense(
-                name=f"{name} — {d.strftime('%b %d')}",
-                category=category,
-                amount=amount,
-                description=description,
-                expense_date=d,
-                created_by=manager_id,
-            ))
-            count += 1
-
-    await db.flush()
-    print(f"  ✓ Created {count} expense records")
+    """No fake expenses — start clean."""
+    print("  Skipping expenses (clean start)")
 
 
 async def seed_meal_requests(db: AsyncSession, users: dict) -> None:

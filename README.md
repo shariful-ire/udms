@@ -170,5 +170,7 @@ npm run lint
 
 ---
 diningmgr / Manager@1234!
-or provost / Admin@1234!
+provost / Admin@1234!
+student_customer / Student@1234!
+student_normal / Student@1234!
 ---
