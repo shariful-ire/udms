@@ -16,6 +16,9 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Avatar } from "@/components/shared/Avatar";
 import { RoleBadge, StatusBadge } from "@/components/shared/Badge";
 
+const DEPARTMENTS = ["IRE", "CySE", "DSE", "EdTE", "SE"];
+const HALLS = ["UFTB Boys Hall", "UFTB Girls Hall-1", "UFTB Girls Hall-2"];
+
 const profileSchema = z.object({
   full_name: z.string().min(2).max(150),
   phone: z.string().optional().or(z.literal("")),
@@ -145,8 +148,22 @@ export default function ProfilePage() {
                 <Field label="Phone" name="phone" form={profileForm} type="tel" />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <Field label="Department" name="department" form={profileForm} />
-                <Field label="Hall Name" name="hall_name" form={profileForm} />
+                <Field label="Department" name="department" form={profileForm}>
+                  <select {...profileForm.register("department")} className={inputCls}>
+                    <option value="">Select…</option>
+                    {DEPARTMENTS.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Hall Name" name="hall_name" form={profileForm}>
+                  <select {...profileForm.register("hall_name")} className={inputCls}>
+                    <option value="">Select…</option>
+                    {HALLS.map((h) => (
+                      <option key={h} value={h}>{h}</option>
+                    ))}
+                  </select>
+                </Field>
               </div>
               <button type="submit" disabled={updateMutation.isPending}
                 className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60 transition-colors">

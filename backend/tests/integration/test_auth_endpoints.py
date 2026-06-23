@@ -16,9 +16,9 @@ class TestRegistrationEndpoint:
             "full_name": "Integration User One",
             "email": "intg1@university.edu",
             "password": "ValidPass@1234",
-            "department": "CSE",
+            "department": "IRE",
             "batch": "2024",
-            "hall_name": "Shaheed Hall",
+            "hall_name": "UFTB Boys Hall",
         })
         assert response.status_code == 201
         data = response.json()
@@ -33,9 +33,9 @@ class TestRegistrationEndpoint:
             "full_name": "Dup User",
             "email": "dup@university.edu",
             "password": "ValidPass@1234",
-            "department": "CSE",
+            "department": "IRE",
             "batch": "2024",
-            "hall_name": "Shaheed Hall",
+            "hall_name": "UFTB Boys Hall",
         }
         # First registration
         await client.post("/api/v1/auth/register", json=payload)
@@ -54,9 +54,9 @@ class TestRegistrationEndpoint:
             "full_name": "Weak User",
             "email": "weak@university.edu",
             "password": "weak",
-            "department": "CSE",
+            "department": "IRE",
             "batch": "2024",
-            "hall_name": "Shaheed Hall",
+            "hall_name": "UFTB Boys Hall",
         })
         assert response.status_code == 422
 
@@ -68,9 +68,9 @@ class TestRegistrationEndpoint:
             "full_name": "Bad Email",
             "email": "not-an-email",
             "password": "ValidPass@1234",
-            "department": "CSE",
+            "department": "IRE",
             "batch": "2024",
-            "hall_name": "Shaheed Hall",
+            "hall_name": "UFTB Boys Hall",
         })
         assert response.status_code == 422
 
@@ -85,9 +85,9 @@ class TestLoginEndpoint:
             "full_name": "Inactive User",
             "email": "inactive_intg@university.edu",
             "password": "ValidPass@1234",
-            "department": "CSE",
+            "department": "IRE",
             "batch": "2024",
-            "hall_name": "Shaheed Hall",
+            "hall_name": "UFTB Boys Hall",
         })
         # Try to login without verifying
         response = await client.post("/api/v1/auth/login", json={

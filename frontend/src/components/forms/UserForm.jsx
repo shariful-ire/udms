@@ -7,6 +7,9 @@ import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { ROLES } from "@/lib/constants";
 
+const DEPARTMENTS = ["IRE", "CySE", "DSE", "EdTE", "SE"];
+const HALLS = ["UFTB Boys Hall", "UFTB Girls Hall-1", "UFTB Girls Hall-2"];
+
 const createSchema = z.object({
   full_name:   z.string().min(2).max(150),
   username:    z.string().min(3).max(50).regex(/^[a-zA-Z0-9_]+$/, "Letters, numbers and underscores only"),
@@ -78,10 +81,20 @@ export function UserForm({ defaultValues, onSubmit, isLoading, isEdit = false })
 
       <div className="grid grid-cols-2 gap-4">
         <Field label="Department" error={errors.department?.message} required>
-          <input {...register("department")} placeholder="CSE" className={inputCls(errors.department)} />
+          <select {...register("department")} className={inputCls(errors.department)}>
+            <option value="">Select…</option>
+            {DEPARTMENTS.map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
         </Field>
         <Field label="Hall Name" error={errors.hall_name?.message} required>
-          <input {...register("hall_name")} placeholder="Zia Hall" className={inputCls(errors.hall_name)} />
+          <select {...register("hall_name")} className={inputCls(errors.hall_name)}>
+            <option value="">Select…</option>
+            {HALLS.map((h) => (
+              <option key={h} value={h}>{h}</option>
+            ))}
+          </select>
         </Field>
       </div>
 

@@ -46,28 +46,9 @@ const registerSchema = z
     path: ["confirm_password"],
   });
 
-const DEPARTMENTS = [
-  "Computer Science & Engineering",
-  "Electrical & Electronic Engineering",
-  "Mechanical Engineering",
-  "Civil Engineering",
-  "Business Administration",
-  "Economics",
-  "Mathematics",
-  "Physics",
-  "Chemistry",
-  "English",
-  "Other",
-];
+const DEPARTMENTS = ["IRE", "CySE", "DSE", "EdTE", "SE"];
 
-const HALLS = [
-  "Sher-e-Bangla Hall",
-  "Shahid Suhrawardy Hall",
-  "Zia Hall",
-  "Bangabandhu Hall",
-  "Shah Amanat Hall",
-  "Other",
-];
+const HALLS = ["UFTB Boys Hall", "UFTB Girls Hall-1", "UFTB Girls Hall-2"];
 
 export default function RegisterPage() {
   const router = useRouter();

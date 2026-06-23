@@ -107,9 +107,9 @@ class TestRegistrationSchema:
             full_name="Test User",
             email="test@university.edu",
             password="ValidPass@1234",
-            department="CSE",
+            department="IRE",
             batch="2024",
-            hall_name="Shaheed Hall",
+            hall_name="UFTB Boys Hall",
         )
         assert data.username == "testuser"
 
@@ -122,9 +122,9 @@ class TestRegistrationSchema:
                 full_name="Test User",
                 email="test2@university.edu",
                 password="weak",  # too short, no uppercase/special
-                department="CSE",
+                department="IRE",
                 batch="2024",
-                hall_name="Shaheed Hall",
+                hall_name="UFTB Boys Hall",
             )
 
     def test_invalid_email_rejected(self):
@@ -136,9 +136,9 @@ class TestRegistrationSchema:
                 full_name="Test User 3",
                 email="not-an-email",
                 password="ValidPass@1234",
-                department="CSE",
+                department="IRE",
                 batch="2024",
-                hall_name="Shaheed Hall",
+                hall_name="UFTB Boys Hall",
             )
 
 
@@ -163,9 +163,9 @@ class TestLoginFlow:
             email="inactive@test.edu",
             password_hash=hash_password("Pass@1234"),
             role="NON_CUSTOMER",
-            department="CSE",
+            department="CySE",
             batch="2023",
-            hall_name="Shaheed Hall",
+            hall_name="UFTB Boys Hall",
             status="INACTIVE",
             email_verified=False,
         )
