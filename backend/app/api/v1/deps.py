@@ -3,6 +3,7 @@ from typing import Optional
 import redis.asyncio as aioredis
 from fastapi import Cookie, Depends, Header, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -26,12 +27,16 @@ _redis_pool: Optional[aioredis.Redis] = None
 async def get_redis() -> aioredis.Redis:
     global _redis_pool
     if _redis_pool is None:
-        _redis_pool = aioredis.from_url(
-            settings.REDIS_URL,
-            encoding="utf-8",
-            decode_responses=False,
-            max_connections=settings.REDIS_MAX_CONNECTIONS,
-        )
+        try:
+            _redis_pool = aioredis.from_url(
+                settings.REDIS_URL,
+                encoding="utf-8",
+                decode_responses=False,
+                max_connections=settings.REDIS_MAX_CONNECTIONS,
+            )
+        except Exception:
+            logger.warning("Could not create Redis connection pool")
+            _redis_pool = aioredis.from_url("redis://localhost:6379/0")
     return _redis_pool
 
 

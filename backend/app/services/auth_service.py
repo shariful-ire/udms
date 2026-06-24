@@ -67,6 +67,14 @@ class AuthService:
         if await self.user_repo.get_by_student_id(data.student_id):
             raise ConflictException("Student ID already registered")
 
+        # Try OTP flow via Redis; if Redis is down, auto-activate the user
+        try:
+            await self.redis.ping()
+            redis_available = True
+        except Exception:
+            redis_available = False
+            logger.warning("Redis unavailable — user will be auto-activated without email verification")
+
         # Create user
         user = await self.user_repo.create({
             "username": data.username.lower(),
@@ -78,29 +86,33 @@ class AuthService:
             "batch": data.batch,
             "hall_name": data.hall_name,
             "phone": data.phone,
-            "status": "INACTIVE",
-            "email_verified": False,
+            "status": "ACTIVE" if not redis_available else "INACTIVE",
+            "email_verified": not redis_available,
             "role": "NON_CUSTOMER",
         })
 
-        # Generate & store OTP
-        otp = generate_otp()
-        otp_key = self._otp_key(data.email, "verify")
-        await self.redis.setex(
-            otp_key,
-            settings.OTP_EXPIRE_MINUTES * 60,
-            otp,
-        )
+        if redis_available:
+            # Generate & store OTP
+            otp = generate_otp()
+            otp_key = self._otp_key(data.email, "verify")
+            await self.redis.setex(
+                otp_key,
+                settings.OTP_EXPIRE_MINUTES * 60,
+                otp,
+            )
 
-        # Send verification email
-        await self.email_service.send_verification_email(
-            to_email=data.email,
-            full_name=data.full_name,
-            otp=otp,
-        )
+            # Send verification email
+            await self.email_service.send_verification_email(
+                to_email=data.email,
+                full_name=data.full_name,
+                otp=otp,
+            )
 
-        logger.info(f"New user registered: {data.username} ({data.email})")
-        return {"message": "Registration successful. Please check your email for the verification code.", "email": data.email}
+            logger.info(f"New user registered: {data.username} ({data.email})")
+            return {"message": "Registration successful. Please check your email for the verification code.", "email": data.email}
+        else:
+            logger.info(f"New user registered & auto-activated: {data.username} ({data.email})")
+            return {"message": "Registration successful. Your account is now active. You can log in.", "email": data.email}
 
     # ─── Email Verification ───────────────────────────────────────────────────
     async def verify_email(self, email: str, otp: str) -> dict:
